@@ -1,0 +1,22 @@
+services:
+  web:
+    build: .
+    init: true
+    restart: unless-stopped
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-django-insecure-local-compose-only}
+    ports:
+      - "127.0.0.1:${HEAT_PORT:-8000}:8000"
+    volumes:
+      - site_data:/data
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "python", "/app/healthcheck.py"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+volumes:
+  site_data:
