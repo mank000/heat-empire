@@ -10,14 +10,22 @@
 python3 -m venv .venv
 source .venv/bin/activate
 python -m pip install -r requirements.txt
-DJANGO_DEBUG=1 DJANGO_SECRET_KEY=local-development-only python manage.py runserver
+export DJANGO_DEBUG=1 DJANGO_SECRET_KEY=local-development-only
+python manage.py migrate
+python manage.py runserver
 ```
 
 Главная откроется по адресу http://127.0.0.1:8000/.
 
+## Редактирование контактов
+
+При первом запуске создайте учётную запись командой `python manage.py createsuperuser`.
+Откройте http://127.0.0.1:8000/admin/ и выберите **Настройки сайта → Контакты сайта**.
+Телефон и адрес из макета уже заполнены. Укажите полные ссылки для Telegram, WhatsApp и MAX.
+Пустое поле оставляет соответствующую иконку без ссылки.
 
 ## Текущий объём
 
 - Главная страница сверстана для окна браузера шириной 1440 px.
 - Фотографии и иконки взяты из экспорта Figma. Для заголовков используется Fira Sans Extra Condensed из Impery. Остальные шрифты из макета, TikTok Sans и Manrope, хранятся локально вместе с лицензиями.
-- В форме расчёта можно заполнить поля. Отправка заявок и адреса ссылок на мессенджеры и юридические страницы потребуют отдельного подключения.
+- В форме расчёта можно заполнить поля. Отправка заявок и ссылки на юридические страницы потребуют отдельного подключения.

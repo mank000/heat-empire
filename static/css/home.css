@@ -783,6 +783,10 @@ a.button:hover {
     font-style: normal;
 }
 
+.footer__address {
+    white-space: pre-line;
+}
+
 .footer address span {
     display: block;
     margin-bottom: 8px;
