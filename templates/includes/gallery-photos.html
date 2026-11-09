@@ -1,0 +1,8 @@
+{% load static %}
+<ul class="gallery__group"{% if decorative %} aria-hidden="true"{% endif %}>
+    <li><img src="{% static 'img/winter-house.webp' %}" alt="{% if not decorative %}Тепловой насос у загородного дома{% endif %}" loading="lazy"></li>
+    <li><img src="{% static 'img/outdoor-unit.webp' %}" alt="{% if not decorative %}Наружный блок у стены дома{% endif %}" loading="lazy"></li>
+    <li><img src="{% static 'img/equipment.webp' %}" alt="{% if not decorative %}Оборудование в котельной{% endif %}" loading="lazy"></li>
+    <li><img src="{% static 'img/night-house.webp' %}" alt="{% if not decorative %}Наружный блок у дома зимой{% endif %}" loading="lazy"></li>
+    <li><img src="{% static 'img/installation.webp' %}" alt="{% if not decorative %}Монтаж отопительного оборудования{% endif %}" loading="lazy"></li>
+</ul>

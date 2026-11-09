@@ -3,25 +3,25 @@
     <div class="container">
         <h2 id="how-title">Как работает тепловой насос?</h2>
         <p class="intro">Тепловой насос забирает тепловую энергию из наружного воздуха и передаёт её воде в системе отопления.</p>
-        <div class="how__grid">
+        <div class="how__grid" data-reveal-group>
             <ol class="how__steps">
-                <li>
+                <li data-reveal="left">
                     <span class="step-number" aria-hidden="true">01</span>
                     <h3>Забирает тепло из воздуха</h3>
                     <p>Наружный блок извлекает тепловую энергию из окружающего воздуха, в том числе в холодное время года.</p>
                 </li>
-                <li>
+                <li data-reveal="left">
                     <span class="step-number" aria-hidden="true">02</span>
                     <h3>Передаёт тепло воде</h3>
                     <p>Хладагент переносит энергию через теплообменник к теплоносителю, циркулирующему в системе отопления.</p>
                 </li>
-                <li>
+                <li data-reveal="left">
                     <span class="step-number" aria-hidden="true">03</span>
                     <h3>Обогревает помещения</h3>
                     <p>Горячая вода поступает в тёплый пол или радиаторы. Система также готовит горячую воду при соответствующей комплектации.</p>
                 </li>
             </ol>
-            <figure class="how__diagram">
+            <figure class="how__diagram" data-reveal="right">
                 <img src="{% static 'img/pump-diagram.webp' %}" width="404" height="266" loading="lazy" alt="Схема отопления дома тепловым насосом">
                 <figcaption>По принципу работы он похож на холодильник, только переносит тепло в обратном направлении — с улицы в дом.</figcaption>
             </figure>
@@ -31,11 +31,13 @@
             {% include "includes/phone.html" %}
         </div>
     </div>
-    <ul class="gallery" tabindex="0" aria-label="Фотографии оборудования и монтажа">
-        <li><img src="{% static 'img/winter-house.webp' %}" alt="Тепловой насос у загородного дома" loading="lazy"></li>
-        <li><img src="{% static 'img/outdoor-unit.webp' %}" alt="Наружный блок у стены дома" loading="lazy"></li>
-        <li><img src="{% static 'img/equipment.webp' %}" alt="Оборудование в котельной" loading="lazy"></li>
-        <li><img src="{% static 'img/night-house.webp' %}" alt="Наружный блок у дома зимой" loading="lazy"></li>
-        <li><img src="{% static 'img/installation.webp' %}" alt="Монтаж отопительного оборудования" loading="lazy"></li>
-    </ul>
+    <div class="gallery">
+        <div class="gallery__viewport" tabindex="0" role="region" aria-label="Фотографии оборудования и монтажа">
+            <div class="gallery__track">
+                {% include "includes/gallery-photos.html" %}
+                {% include "includes/gallery-photos.html" with decorative=True %}
+            </div>
+        </div>
+        <button class="gallery__toggle" type="button" hidden>Пауза</button>
+    </div>
 </section>

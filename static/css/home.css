@@ -255,7 +255,7 @@ a.button:hover {
 
 .how__steps,
 .work__steps,
-.gallery,
+.gallery__group,
 .case__tags {
     margin: 0;
     padding: 0;
@@ -338,18 +338,33 @@ a.button:hover {
 }
 
 .gallery {
-    display: flex;
+    position: relative;
     max-width: 1440px;
-    gap: 12px;
-    overflow-x: auto;
     margin: 24px auto 0;
-    scroll-snap-type: x mandatory;
+}
+
+.gallery__viewport {
+    overflow-x: auto;
     scrollbar-width: none;
 }
 
-.gallery li {
+.gallery__track,
+.gallery__group {
+    display: flex;
+    width: max-content;
+}
+
+.gallery__group {
+    gap: 12px;
+    padding-right: 12px;
+}
+
+.gallery__group[aria-hidden="true"] {
+    display: none;
+}
+
+.gallery__group li {
     flex: 0 0 321px;
-    scroll-snap-align: start;
 }
 
 .gallery img {
@@ -358,16 +373,30 @@ a.button:hover {
     object-fit: cover;
 }
 
-.gallery li:first-child img {
+.gallery__group li:first-child img {
     clip-path: polygon(84% 0, 100% 16%, 100% 100%, 16% 100%, 0 84%, 0 16%, 16% 0);
 }
 
-.gallery li:nth-child(2) img {
+.gallery__group li:nth-child(2) img {
     clip-path: polygon(16% 0, 100% 0, 100% 100%, 0 100%, 0 16%);
 }
 
-.gallery li:nth-child(3) img {
+.gallery__group li:nth-child(3) img {
     clip-path: polygon(0 0, 100% 0, 100% 100%, 16% 100%, 0 84%);
+}
+
+.gallery__toggle {
+    position: absolute;
+    right: 16px;
+    bottom: 16px;
+    min-width: 84px;
+    min-height: 34px;
+    padding-inline: 12px;
+    border: 1px solid white;
+    border-radius: 2px;
+    background: var(--ink);
+    color: white;
+    cursor: pointer;
 }
 
 .four-columns {
