@@ -1,0 +1,29 @@
+{% load static %}
+<div class="hero">
+    <header class="site-header">
+        <div class="container site-header__inner">
+            <a href="{% url 'home' %}" aria-label="Империя тепла, главная">
+                <img src="{% static 'img/logo.webp' %}" width="114" height="63" alt="Империя тепла">
+            </a>
+            <div class="contacts">
+                {% include "includes/phone.html" %}
+                {% include "includes/messengers.html" %}
+            </div>
+        </div>
+    </header>
+    <div class="hero__picture" aria-hidden="true"></div>
+    <div class="container hero__content">
+        <h1>Установим тепловой насос&nbsp;—<br>чтобы вы платили меньше<br><span>за отопление</span></h1>
+        <p>Снизьте расходы на отопление с помощью теплового насоса «воздух–вода». Подберём оборудование с учётом площади, теплопотерь и ваших потребностей.</p>
+        <div class="actions">
+            <a class="button" href="#quote">Рассчитать выгоду</a>
+            <a class="button button--outline" href="#how-it-works">Как это работает</a>
+        </div>
+    </div>
+    <ul class="benefits" aria-label="Преимущества теплового насоса">
+        <li><img src="{% static 'img/climate.svg' %}" alt="">Отопление<br>+ охлаждение</li>
+        <li><img src="{% static 'img/saving.svg' %}" alt="">50–70% экономии<br>на отоплении</li>
+        <li><img src="{% static 'img/output.svg' %}" alt="">1 кВт электричества<br>= 3–4 кВт тепла</li>
+        <li><img src="{% static 'img/no-gas.svg' %}" alt="">Без газа — не значит<br>дорого</li>
+    </ul>
+</div>

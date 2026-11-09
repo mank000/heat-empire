@@ -1,5 +1,22 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+    <meta name="description" content="Подбор, проектирование и монтаж тепловых насосов для отопления и охлаждения дома.">
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+{% endblock %}
 
 {% block content %}
-    <h1>Империя тепла</h1>
+    {% include "includes/hero.html" %}
+    {% include "includes/how-it-works.html" %}
+    {% include "includes/comparison.html" %}
+    {% include "includes/work-stages.html" %}
+    <div class="results">
+        {% include "includes/cases.html" %}
+        {% include "includes/quote.html" %}
+    </div>
+{% endblock %}
+
+{% block footer %}
+    {% include "includes/footer.html" %}
 {% endblock %}
