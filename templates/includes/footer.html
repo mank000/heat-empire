@@ -1,0 +1,25 @@
+{% load static %}
+<footer class="footer">
+    <div class="container container--wide">
+        <div class="footer__top">
+            <a href="{% url 'home' %}" aria-label="Империя тепла, главная">
+                <img src="{% static 'img/footer-logo.webp' %}" width="261" height="146" alt="Империя тепла" loading="lazy">
+            </a>
+            <div class="contacts">
+                {% include "includes/messengers.html" %}
+                {% include "includes/phone.html" %}
+            </div>
+        </div>
+        <div class="footer__bottom">
+            <address>
+                <span>Адрес</span>
+                г. Санкт-Петербург, г. Колпино,<br> ул. Анисимова, 5 корпус 2, лит. А, пом. 6Н
+            </address>
+            <div class="footer__legal">
+                <span>Реквизиты компании</span>
+                <span>Политика конфиденциальности</span>
+            </div>
+            <span>Где разработан сайт</span>
+        </div>
+    </div>
+</footer>
