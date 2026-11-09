@@ -1,0 +1,52 @@
+@media (prefers-reduced-motion: no-preference) {
+    body {
+        overflow-x: clip;
+    }
+
+    .benefits li {
+        animation: reveal-up 650ms cubic-bezier(.2, .7, .2, 1) both;
+        animation-delay: calc(100ms + var(--item-order, 0) * 85ms);
+    }
+
+    .benefits li:nth-child(2),
+    [data-reveal]:nth-child(2) { --item-order: 1; }
+
+    .benefits li:nth-child(3),
+    [data-reveal]:nth-child(3) { --item-order: 2; }
+
+    .benefits li:nth-child(4),
+    [data-reveal]:nth-child(4) { --item-order: 3; }
+
+    .motion-ready [data-reveal-group]:not(.is-revealed) [data-reveal] {
+        opacity: 0;
+    }
+
+    .is-revealed [data-reveal] {
+        animation: reveal-up 650ms cubic-bezier(.2, .7, .2, 1) both;
+        animation-delay: calc(var(--item-order, 0) * 115ms);
+    }
+
+    .is-revealed [data-reveal="left"] {
+        animation-name: reveal-left;
+    }
+
+    .is-revealed [data-reveal="right"] {
+        animation-name: reveal-right;
+        animation-delay: 900ms;
+    }
+}
+
+@keyframes reveal-up {
+    from { transform: translateY(38px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes reveal-left {
+    from { transform: translateX(-100vw); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@keyframes reveal-right {
+    from { transform: translateX(100vw); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
