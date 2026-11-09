@@ -50,3 +50,34 @@
     from { transform: translateX(100vw); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
 }
+
+@media (prefers-reduced-motion: no-preference) {
+    .gallery--motion .gallery__viewport {
+        overflow: hidden;
+    }
+
+    .gallery--motion .gallery__group[aria-hidden="true"] {
+        display: flex;
+    }
+
+    .gallery--motion .gallery__track {
+        animation: photo-marquee 42s linear infinite;
+    }
+
+    .gallery--motion:not(.gallery--visible) .gallery__track,
+    .gallery--motion .gallery__viewport:hover .gallery__track,
+    .gallery--motion .gallery__viewport:focus .gallery__track,
+    .gallery--paused .gallery__track {
+        animation-play-state: paused;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .gallery__toggle {
+        display: none;
+    }
+}
+
+@keyframes photo-marquee {
+    to { transform: translateX(-50%); }
+}

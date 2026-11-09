@@ -31,11 +31,13 @@
             {% include "includes/phone.html" %}
         </div>
     </div>
-    <ul class="gallery" tabindex="0" aria-label="Фотографии оборудования и монтажа">
-        <li><img src="{% static 'img/winter-house.webp' %}" alt="Тепловой насос у загородного дома" loading="lazy"></li>
-        <li><img src="{% static 'img/outdoor-unit.webp' %}" alt="Наружный блок у стены дома" loading="lazy"></li>
-        <li><img src="{% static 'img/equipment.webp' %}" alt="Оборудование в котельной" loading="lazy"></li>
-        <li><img src="{% static 'img/night-house.webp' %}" alt="Наружный блок у дома зимой" loading="lazy"></li>
-        <li><img src="{% static 'img/installation.webp' %}" alt="Монтаж отопительного оборудования" loading="lazy"></li>
-    </ul>
+    <div class="gallery">
+        <div class="gallery__viewport" tabindex="0" role="region" aria-label="Фотографии оборудования и монтажа">
+            <div class="gallery__track">
+                {% include "includes/gallery-photos.html" %}
+                {% include "includes/gallery-photos.html" with decorative=True %}
+            </div>
+        </div>
+        <button class="gallery__toggle" type="button" hidden>Пауза</button>
+    </div>
 </section>
