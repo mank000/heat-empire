@@ -1,0 +1,26 @@
+{% load static %}
+<section class="comparison section container" aria-labelledby="comparison-title">
+    <h2 id="comparison-title">Чем выгоднее отапливать ваш дом?</h2>
+    <p class="intro">Сравните четыре популярных решения по расходам, удобству и возможностям — и выберите подходящее для своего дома.</p>
+    <div class="four-columns">
+        {% for system in heating_systems %}
+            <article class="comparison__card{% if system.featured %} comparison__card--featured{% endif %}">
+                <div class="comparison__heading">
+                    <h3>{{ system.title }}</h3>
+                    {% if system.featured %}<span class="tag">Лучшее</span>{% endif %}
+                </div>
+                <dl>
+                    {% for label, icon, value, tone in system.rows %}
+                        <div class="comparison__row">
+                            <dt>
+                                <img src="{% static icon %}" width="16" height="16" alt="" loading="lazy">
+                                {{ label }}
+                            </dt>
+                            <dd class="status status--{{ tone }}">{{ value }}</dd>
+                        </div>
+                    {% endfor %}
+                </dl>
+            </article>
+        {% endfor %}
+    </div>
+</section>

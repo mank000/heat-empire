@@ -369,3 +369,11 @@ a.button:hover {
 .gallery li:nth-child(3) img {
     clip-path: polygon(0 0, 100% 0, 100% 100%, 16% 100%, 0 84%);
 }
+
+.four-columns {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 20px;
+}
+
+.comparison,
