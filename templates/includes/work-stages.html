@@ -1,0 +1,13 @@
+<section class="work section container" aria-labelledby="work-title">
+    <h2 id="work-title">Этапы работ — от подбора до запуска</h2>
+    <p class="intro">Помогаем подобрать оборудование, спроектировать систему отопления и подготовить её к работе.</p>
+    <ol class="work__steps four-columns">
+        {% for title, description in work_stages %}
+            <li>
+                <h3>{{ title }}</h3>
+                <p>{{ description }}</p>
+                <span class="step-number" aria-hidden="true">0{{ forloop.counter }}</span>
+            </li>
+        {% endfor %}
+    </ol>
+</section>
