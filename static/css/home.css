@@ -652,3 +652,94 @@ a.button:hover {
     color: var(--ink);
     cursor: pointer;
 }
+
+.quote {
+    padding-bottom: 80px;
+}
+
+.quote__panel {
+    position: relative;
+    display: grid;
+    min-height: 673px;
+    grid-template-rows: 315px auto;
+    background: #202127 url("../img/plant.webp") center / cover no-repeat;
+    clip-path: polygon(0 0, 100% 0, 100% calc(100% - 68px), calc(100% - 68px) 100%, 0 100%);
+}
+
+.quote__heading {
+    padding: 40px 52px;
+    background: white;
+    clip-path: polygon(0 0, 75.6% 0, 51.6% 100%, 0 100%);
+}
+
+.quote h2 {
+    font-size: clamp(45px, 4.6vw, 66px);
+}
+
+.quote .intro {
+    max-width: 455px;
+}
+
+.quote__body {
+    display: flex;
+    gap: 20px;
+    align-items: end;
+    justify-content: space-between;
+    padding: 45px 52px 30px;
+    background: linear-gradient(90deg, #111b, transparent 70%);
+}
+
+.quote__form {
+    width: min(600px, 60%);
+    color: white;
+}
+
+.quote__fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.quote__fields input,
+.quote__fields select {
+    width: 100%;
+    min-height: 54px;
+    padding: 10px 16px;
+    border: 1px solid #d8d9dd;
+    border-radius: 2px;
+    background: var(--paper);
+    color: var(--ink);
+    font: inherit;
+}
+
+.quote__consent {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    margin: 15px 0;
+    font-size: 14px;
+}
+
+.quote__consent input {
+    accent-color: var(--accent);
+}
+
+.quote__form .button {
+    width: 100%;
+}
+
+.quote__form .button:disabled {
+    cursor: not-allowed;
+}
+
+.quote__preview {
+    margin-top: 5px;
+    color: white;
+    font-size: 13px;
+}
+
+.quote__contacts {
+    padding: 16px 26px;
+    background: white;
+    clip-path: polygon(0 0, 100% 0, 100% 70%, 93% 100%, 0 100%);
+}
