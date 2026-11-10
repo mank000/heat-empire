@@ -127,10 +127,12 @@ a {
     text-transform: uppercase;
 }
 
-a.button:hover {
-    border-color: var(--accent-dark);
-    background: var(--accent-dark);
-    color: white;
+@media (hover: hover) {
+    a.button:hover {
+        border-color: var(--accent-dark);
+        background: var(--accent-dark);
+        color: white;
+    }
 }
 
 .button--outline {
@@ -245,6 +247,10 @@ a.button:hover {
 .benefits li:nth-child(2) { min-width: 246px; }
 .benefits li:nth-child(3) { min-width: 271px; }
 .benefits li:nth-child(4) { min-width: 248px; }
+
+.benefits__mobile-break {
+    display: none;
+}
 
 .how {
     padding-top: 113px;
@@ -452,7 +458,7 @@ a.button:hover {
 .comparison__row {
     display: grid;
     min-height: 48px;
-    grid-template-columns: 1fr 122px;
+    grid-template-columns: minmax(0, 1fr) min(122px, 46%);
     gap: 8px;
     align-items: center;
     border-bottom: 1px solid #f0eff3;
@@ -463,6 +469,7 @@ a.button:hover {
     display: flex;
     gap: 6px;
     align-items: center;
+    overflow-wrap: anywhere;
 }
 
 .comparison__row dt img {

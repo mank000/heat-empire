@@ -39,11 +39,13 @@ if (scrollPanels.length && "ResizeObserver" in window) {
     const scrollObserver = new ResizeObserver(entries => {
         for (const { target } of entries) {
             const scrollable = target.scrollWidth > target.clientWidth;
-            target.toggleAttribute("tabindex", scrollable);
             if (scrollable) {
                 target.setAttribute("tabindex", "0");
+                if (target.tagName === "DIV") target.setAttribute("role", "region");
                 target.setAttribute("aria-label", target.dataset.scrollPanel);
             } else {
+                target.removeAttribute("tabindex");
+                target.removeAttribute("role");
                 target.removeAttribute("aria-label");
             }
         }

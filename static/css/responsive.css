@@ -1,3 +1,4 @@
+/* Первый экран и принцип работы. */
 @media (max-width: 1199px) {
     .container,
     .container--wide,
@@ -19,9 +20,14 @@
         padding-bottom: 20px;
     }
 
+    .hero__heading {
+        overflow: clip;
+    }
+
     .hero h1 {
+        width: 119%;
         font-size: clamp(36px, 6vw, 68px);
-        transform: none;
+        transform: scaleX(.84);
     }
 
     .hero__accent-break {
@@ -46,8 +52,8 @@
     .hero__picture {
         position: static;
         aspect-ratio: 1.2;
-        background-position: 91% 100%;
-        background-size: auto 146%;
+        background-position: 94% 100%;
+        background-size: auto 173%;
         clip-path: none;
     }
 
@@ -166,7 +172,7 @@
     }
 
     .hero h1 {
-        max-width: 360px;
+        max-width: 390px;
         font-size: clamp(32px, 10vw, 46px);
     }
 
@@ -195,7 +201,8 @@
 
     .hero__picture {
         aspect-ratio: 1.67;
-        background-size: auto 183%;
+        background-position: right 93%;
+        background-size: auto 185%;
     }
 
     .benefits {
@@ -219,6 +226,14 @@
         flex-basis: 34px;
         width: 48px;
         height: 34px;
+    }
+
+    .benefits__mobile-break {
+        display: initial;
+    }
+
+    .benefits__desktop-break {
+        display: none;
     }
 
     .how {
@@ -268,6 +283,7 @@
     }
 }
 
+/* Сравнение, этапы работ и кейсы. */
 @media (max-width: 1199px) {
     .comparison,
     .work {
@@ -476,6 +492,7 @@
     }
 }
 
+/* Форма расчёта и подвал. */
 @media (max-width: 1199px) {
     .quote {
         padding-bottom: 54px;
@@ -587,7 +604,6 @@
 }
 
 @media (max-width: 639px) {
-    .quote,
     .footer > .container {
         width: calc(100% - 32px);
     }
