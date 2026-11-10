@@ -1,6 +1,6 @@
 # Империя тепла
 
-Десктопный лендинг на Django 5.2, HTML и CSS. Целевой макет — [«Главная 1440px» в Figma](https://www.figma.com/design/bbgufdPCw8sVnFvTucYKmh/?node-id=4232-3293).
+Адаптивный лендинг на Django 5.2, HTML и CSS. Макеты главной в Figma: [1440 px](https://www.figma.com/design/bbgufdPCw8sVnFvTucYKmh/?node-id=4232-3293), [768 px](https://www.figma.com/design/bbgufdPCw8sVnFvTucYKmh/?node-id=4238-655) и [368 px](https://www.figma.com/design/bbgufdPCw8sVnFvTucYKmh/?node-id=4240-1694).
 
 ## Запуск через Docker
 
@@ -55,6 +55,6 @@ docker compose -f compose.yaml -f compose.prod.yaml exec -T web python /app/back
 
 ## Текущий объём
 
-- Главная страница сверстана для окна браузера шириной 1440 px.
+- На телефонах сравнение, этапы работ и кейсы листаются горизонтально внутри своих блоков.
 - Фотографии и иконки взяты из экспорта Figma. Для заголовков используется Fira Sans Extra Condensed из Impery. Остальные шрифты из макета, TikTok Sans и Manrope, хранятся локально вместе с лицензиями.
 - В форме расчёта можно заполнить поля. Отправка заявок и ссылки на юридические страницы потребуют отдельного подключения.

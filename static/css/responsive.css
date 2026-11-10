@@ -475,3 +475,195 @@
         transform: translateX(50%);
     }
 }
+
+@media (max-width: 1199px) {
+    .quote {
+        padding-bottom: 54px;
+    }
+
+    .quote__panel {
+        min-height: 0;
+        grid-template-rows: auto auto;
+        background: white;
+        clip-path: none;
+    }
+
+    .quote__heading {
+        padding: 30px 32px;
+        clip-path: none;
+    }
+
+    .quote h2 {
+        font-size: clamp(40px, 5.75vw, 60px);
+    }
+
+    .quote h2 br {
+        display: none;
+    }
+
+    .quote__body {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
+        align-items: stretch;
+        padding: 0;
+        background: none;
+    }
+
+    .quote__form {
+        width: 100%;
+        padding: 60px clamp(32px, 8vw, 70px);
+        background: linear-gradient(#1117, #1119), url("../img/plant.webp") center / cover no-repeat;
+        clip-path: polygon(0 0, 100% 0, 100% calc(100% - 56px), calc(100% - 56px) 100%, 0 100%);
+    }
+
+    .quote__fields {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .quote__fields input,
+    .quote__fields select {
+        min-width: 0;
+    }
+
+    .quote__consent {
+        margin: 24px 0 16px;
+    }
+
+    .quote__contacts {
+        justify-content: center;
+        padding: 18px 16px;
+        clip-path: none;
+    }
+
+    .footer {
+        min-height: 0;
+        padding: 40px 0;
+        clip-path: none;
+    }
+
+    .footer > .container {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, .75fr);
+        gap: 26px 32px;
+        align-items: start;
+    }
+
+    .footer__top,
+    .footer__bottom {
+        display: contents;
+    }
+
+    .footer .contacts {
+        flex-direction: column-reverse;
+        gap: 20px;
+        align-items: flex-start;
+    }
+
+    .footer .messengers {
+        gap: 12px;
+    }
+
+    .footer .messengers img {
+        width: 40px;
+        height: 40px;
+    }
+
+    .footer .phone {
+        text-align: left;
+    }
+
+    .footer .phone strong {
+        font: 600 24px/1.1 "TikTok Sans", Arial, sans-serif;
+    }
+
+    .footer .phone small {
+        font-size: 16px;
+    }
+
+    .footer__bottom > span {
+        color: #b9b9b9;
+    }
+}
+
+@media (max-width: 639px) {
+    .quote,
+    .footer > .container {
+        width: calc(100% - 32px);
+    }
+
+    .quote {
+        width: 100%;
+        padding-bottom: 36px;
+    }
+
+    .quote__heading,
+    .quote__body {
+        padding-inline: 16px;
+    }
+
+    .quote__heading {
+        padding-block: 28px 24px;
+    }
+
+    .quote h2 {
+        font-size: clamp(30px, 8.9vw, 40px);
+    }
+
+    .quote .intro {
+        line-height: 1.32;
+    }
+
+    .quote__body::after {
+        grid-row: 2;
+        aspect-ratio: 1.27;
+        margin-top: 24px;
+        background: linear-gradient(#1114, #1115), url("../img/plant.webp") center / cover no-repeat;
+        clip-path: polygon(0 0, 100% 0, 100% calc(100% - 36px), calc(100% - 36px) 100%, 0 100%);
+        content: "";
+    }
+
+    .quote__form {
+        padding: 0;
+        background: none;
+        color: var(--ink);
+        clip-path: none;
+    }
+
+    .quote__fields {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .quote__fields input,
+    .quote__fields select {
+        border-color: transparent;
+        background: var(--background);
+    }
+
+    .quote__form .button {
+        padding-inline: 8px;
+        font-size: 14px;
+    }
+
+    .quote__preview {
+        color: var(--muted);
+    }
+
+    .quote__contacts {
+        gap: 8px 16px;
+        flex-wrap: wrap;
+        padding-inline: 0;
+    }
+
+    .footer > .container {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .footer__top > a {
+        justify-self: start;
+    }
+
+    .footer__bottom > span {
+        margin-top: 20px;
+    }
+}
