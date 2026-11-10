@@ -32,3 +32,24 @@ if (galleryToggle && "IntersectionObserver" in window) {
     galleryToggle.hidden = false;
     galleryObserver.observe(gallery);
 }
+
+const scrollPanels = document.querySelectorAll("[data-scroll-panel]");
+
+if (scrollPanels.length && "ResizeObserver" in window) {
+    const scrollObserver = new ResizeObserver(entries => {
+        for (const { target } of entries) {
+            const scrollable = target.scrollWidth > target.clientWidth;
+            target.toggleAttribute("tabindex", scrollable);
+            if (scrollable) {
+                target.setAttribute("tabindex", "0");
+                target.setAttribute("aria-label", target.dataset.scrollPanel);
+            } else {
+                target.removeAttribute("aria-label");
+            }
+        }
+    });
+
+    for (const panel of scrollPanels) {
+        scrollObserver.observe(panel);
+    }
+}
