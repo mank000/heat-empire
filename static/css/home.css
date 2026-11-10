@@ -160,6 +160,10 @@ a.button:hover {
     text-decoration: underline;
 }
 
+.phone__icon {
+    display: none;
+}
+
 .hero {
     position: relative;
     isolation: isolate;
@@ -200,7 +204,7 @@ a.button:hover {
     transform-origin: left;
 }
 
-.hero h1 span {
+.hero__accent {
     color: var(--accent);
 }
 

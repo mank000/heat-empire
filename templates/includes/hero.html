@@ -6,24 +6,26 @@
                 <img src="{% static 'img/logo.webp' %}" width="114" height="63" alt="Империя тепла">
             </a>
             <div class="contacts">
-                {% include "includes/phone.html" %}
+                {% include "includes/phone.html" with compact=True %}
                 {% include "includes/messengers.html" %}
             </div>
         </div>
     </header>
-    <div class="hero__picture" aria-hidden="true"></div>
     <div class="container hero__content">
-        <h1>Установим тепловой насос&nbsp;—<br>чтобы вы платили меньше<br><span>за отопление</span></h1>
+        <h1>Установим тепловой насос <span class="hero__dash">—</span><br class="hero__line-break"> чтобы вы платили меньше<br class="hero__accent-break"> <span class="hero__accent">за отопление</span></h1>
         <p>Снизьте расходы на отопление с помощью теплового насоса «воздух–вода». Подберём оборудование с учётом площади, теплопотерь и ваших потребностей.</p>
         <div class="actions">
             <a class="button" href="#quote">Рассчитать выгоду</a>
             <a class="button button--outline" href="#how-it-works">Как это работает</a>
         </div>
     </div>
-    <ul class="benefits" aria-label="Преимущества теплового насоса">
-        <li><img src="{% static 'img/climate.svg' %}" alt="">Отопление<br>+ охлаждение</li>
-        <li><img src="{% static 'img/saving.svg' %}" alt="">50–70% экономии<br>на отоплении</li>
-        <li><img src="{% static 'img/output.svg' %}" alt="">1 кВт электричества<br>= 3–4 кВт тепла</li>
-        <li><img src="{% static 'img/no-gas.svg' %}" alt="">Без газа — не значит<br>дорого</li>
-    </ul>
+    <div class="hero__media">
+        <div class="hero__picture" aria-hidden="true"></div>
+        <ul class="benefits" aria-label="Преимущества теплового насоса">
+            <li><img src="{% static 'img/climate.svg' %}" alt=""><span>Отопление<br>+ охлаждение</span></li>
+            <li><img src="{% static 'img/saving.svg' %}" alt=""><span>50–70% экономии<br>на отоплении</span></li>
+            <li><img src="{% static 'img/output.svg' %}" alt=""><span>1 кВт электричества<br>= 3–4 кВт тепла</span></li>
+            <li><img src="{% static 'img/no-gas.svg' %}" alt=""><span>Без газа — не значит<br>дорого</span></li>
+        </ul>
+    </div>
 </div>
