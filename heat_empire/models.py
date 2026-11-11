@@ -3,6 +3,8 @@ import re
 from django.core.validators import MinValueValidator, RegexValidator, URLValidator
 from django.db import models
 
+from .phones import format_phone
+
 
 phone_validator = RegexValidator(
     regex=r"^\+?(?:[ .()\-\u00a0\u202f]*[0-9]){3,15}[ .()\-\u00a0\u202f]*\Z",
@@ -29,8 +31,12 @@ class SiteContacts(models.Model):
         return "Контакты сайта"
 
     @property
+    def phone_display(self):
+        return format_phone(self.phone)
+
+    @property
     def phone_href(self):
-        return "tel:" + re.sub(r"[^+0-9]", "", self.phone)
+        return "tel:" + re.sub(r"[^+0-9]", "", self.phone_display)
 
     @property
     def messengers(self):

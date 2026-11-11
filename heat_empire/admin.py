@@ -1,12 +1,16 @@
 from django.contrib import admin
 
+from .forms import SiteContactsForm
 from .models import LegalPage, QuoteRequest, SiteContacts
 
 
 @admin.register(SiteContacts)
 class SiteContactsAdmin(admin.ModelAdmin):
-    fields = ("phone", "telegram_url", "whatsapp_url", "max_url", "address")
+    form = SiteContactsForm
     actions = None
+
+    class Media:
+        js = ("js/phone-format.js",)
 
     def has_add_permission(self, request):
         return False

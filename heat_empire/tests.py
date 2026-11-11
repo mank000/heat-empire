@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from .models import LegalPage, QuoteRequest
+from .models import LegalPage, QuoteRequest, SiteContacts
 
 
 class SiteContactsTests(TestCase):
@@ -17,7 +17,7 @@ class SiteContactsTests(TestCase):
         self.client.force_login(get_user_model().objects.create_superuser(username="editor"))
         change_url = reverse("admin:heat_empire_sitecontacts_change", args=[1])
         new_contacts = {
-            "phone": "+7 (900) 123-45-67",
+            "phone": "8 900 1234567",
             "telegram_url": "https://t.me/heat_example",
             "whatsapp_url": "https://wa.me/79001234567",
             "max_url": "https://max.ru/heat_example",
@@ -25,9 +25,10 @@ class SiteContactsTests(TestCase):
         }
         self.assertEqual(self.client.post(change_url, new_contacts).status_code, 302)
 
+        self.assertEqual(SiteContacts.objects.get(pk=1).phone, "+7 (900) 123-45-67")
         response = self.client.get(reverse("home"))
         self.assertContains(response, 'href="tel:+79001234567"', count=5)
-        self.assertContains(response, "+7 (900) 123-45-67", count=4)
+        self.assertContains(response, "<strong>+7 (900) 123-45-67</strong>", count=4, html=True)
         self.assertContains(response, new_contacts["address"])
         for field in ("telegram_url", "whatsapp_url", "max_url"):
             self.assertContains(response, f'href="{new_contacts[field]}"', count=3)
@@ -70,7 +71,7 @@ class QuoteRequestTests(TestCase):
         return {
             "source": source,
             f"{source}-name": "Тестовая заявка",
-            f"{source}-phone": "+7 (900) 123-45-67",
+            f"{source}-phone": "9001234567" if source == QuoteRequest.Source.SECTION else "+79001234567",
             f"{source}-area": "120",
             f"{source}-heating": QuoteRequest.Heating.ELECTRIC,
             f"{source}-consent": "on",
