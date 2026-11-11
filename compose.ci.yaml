@@ -1,0 +1,5 @@
+services:
+  web:
+    image: ${HEAT_RELEASE_IMAGE:?Set HEAT_RELEASE_IMAGE}
+  bot:
+    image: ${HEAT_RELEASE_IMAGE:?Set HEAT_RELEASE_IMAGE}
