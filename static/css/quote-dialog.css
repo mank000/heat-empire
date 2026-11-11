@@ -1,0 +1,245 @@
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.quote__field {
+    min-width: 0;
+}
+
+.quote__consent input {
+    flex-shrink: 0;
+    width: 24px;
+    height: 24px;
+    align-self: center;
+    margin: 0;
+}
+
+.quote__status {
+    padding-block: 16px;
+    color: var(--ink);
+    font-weight: 600;
+}
+
+.quote__form .errorlist,
+.quote-dialog__form .errorlist {
+    margin: 6px 0 10px;
+    padding: 0;
+    list-style: none;
+    font-size: 14px;
+}
+
+.quote__fields [aria-invalid="true"] {
+    border-color: var(--accent);
+}
+
+html:has(.quote-dialog[open]) {
+    overflow: hidden;
+}
+
+.quote-dialog {
+    width: min(1320px, calc(100% - 48px));
+    max-width: none;
+    max-height: calc(100dvh - 32px);
+    overflow: hidden;
+    padding: 0;
+    border: 0;
+    background: white;
+    color: var(--ink);
+}
+
+.quote-dialog:not([open]) {
+    display: none;
+}
+
+.quote-dialog::backdrop {
+    background: #19191980;
+    backdrop-filter: blur(3px);
+}
+
+.quote-dialog__scroll {
+    max-height: calc(100dvh - 32px);
+    overflow: auto;
+    overscroll-behavior: contain;
+}
+
+.quote-dialog__panel {
+    position: relative;
+    isolation: isolate;
+}
+
+.quote-dialog__content {
+    width: 57%;
+    padding: clamp(32px, 4vw, 56px);
+}
+
+.quote-dialog h2 {
+    width: 119%;
+    font-size: clamp(30px, 3.2vw, 48px);
+    transform: scaleX(.84);
+    transform-origin: left;
+}
+
+.quote-dialog h2:focus {
+    outline: none;
+}
+
+.quote-dialog h2 span {
+    color: var(--accent);
+}
+
+.quote-dialog p {
+    max-width: 360px;
+    margin: 14px 0 16px;
+    line-height: 1.3;
+}
+
+.quote-dialog__form {
+    max-width: 600px;
+}
+
+.quote-dialog .quote__fields {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.quote-dialog .quote__fields input,
+.quote-dialog .quote__fields select {
+    min-width: 0;
+    border-color: transparent;
+    background-color: var(--background);
+}
+
+.quote-dialog .quote__fields [aria-invalid="true"] {
+    border-color: var(--accent);
+}
+
+.quote-dialog .quote__consent {
+    margin-top: 24px;
+}
+
+.quote-dialog__form .errorlist {
+    color: var(--accent-dark);
+}
+
+.quote-dialog__form .button {
+    width: 100%;
+}
+
+.quote-dialog__picture {
+    position: absolute;
+    z-index: -1;
+    inset: 0 0 0 53%;
+    background: url("../img/hero.webp") right 92% / auto 152% no-repeat;
+    clip-path: polygon(38% 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.quote-dialog__close {
+    position: absolute;
+    z-index: 1;
+    top: 8px;
+    right: 8px;
+    display: grid;
+    width: 40px;
+    height: 40px;
+    place-items: center;
+    padding: 0;
+    border: 1px solid #e7e5e9;
+    background: white;
+    color: var(--ink);
+    font: 28px/1 system-ui, sans-serif;
+    cursor: pointer;
+}
+
+.quote-dialog--success {
+    width: min(704px, calc(100% - 48px));
+}
+
+.quote-dialog--success .quote-dialog__content {
+    display: grid;
+    min-height: 410px;
+    align-content: center;
+    justify-items: start;
+    width: 69%;
+}
+
+.quote-dialog--success h2 {
+    font-size: 44px;
+}
+
+.quote-dialog--success .quote-dialog__picture {
+    left: 50%;
+    clip-path: polygon(65% 0, 100% 0, 100% 100%, 0 100%);
+}
+
+@media (min-width: 640px) and (max-width: 999px) {
+    .quote-dialog {
+        width: calc(100% - 40px);
+    }
+
+    .quote-dialog__content {
+        width: 64%;
+    }
+
+    .quote-dialog .quote__fields {
+        max-width: 360px;
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .quote-dialog__picture {
+        left: 61%;
+        background-position: 84% 92%;
+    }
+
+    .quote-dialog--success .quote-dialog__content {
+        min-height: 276px;
+    }
+
+    .quote-dialog--success .quote-dialog__picture {
+        background-position: right 92%;
+    }
+}
+
+@media (max-width: 639px) {
+    .quote-dialog {
+        width: calc(100% - 24px);
+    }
+
+    .quote-dialog__content,
+    .quote-dialog--success .quote-dialog__content {
+        display: block;
+        width: 100%;
+        min-height: 0;
+        padding: 22px 16px 16px;
+    }
+
+    .quote-dialog h2,
+    .quote-dialog--success h2 {
+        width: calc(119% - 22px);
+        font-size: clamp(25px, 8vw, 37px);
+    }
+
+    .quote-dialog .quote__fields {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .quote-dialog__form .button,
+    .quote-dialog--success .button {
+        width: 100%;
+        padding-inline: 10px;
+        font-size: 14px;
+    }
+
+    .quote-dialog__picture,
+    .quote-dialog--success .quote-dialog__picture {
+        position: static;
+        aspect-ratio: 2.25;
+        margin: 0 16px 16px;
+        background-position: right 92%;
+        background-size: auto 183%;
+        clip-path: polygon(0 0, calc(100% - 32px) 0, 100% 32px, 100% 100%, 0 100%);
+    }
+}

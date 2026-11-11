@@ -1,0 +1,20 @@
+{% csrf_token %}
+<input type="hidden" name="source" value="{{ form.prefix }}">
+{{ form.non_field_errors }}
+<div class="quote__fields">
+    {% for field in form %}
+        {% if field.name != "consent" %}
+            <div class="quote__field">
+                <label class="visually-hidden" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {{ field.errors }}
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+<label class="quote__consent" for="{{ form.consent.id_for_label }}">
+    {{ form.consent }}
+    <span>{{ form.consent.label }}</span>
+</label>
+{{ form.consent.errors }}
+<button class="button" type="submit">Рассчитать экономичное отопление</button>

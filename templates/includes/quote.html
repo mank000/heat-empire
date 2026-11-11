@@ -5,23 +5,9 @@
             <p class="intro">Учтём площадь дома, особенности утепления и ваши потребности, чтобы подобрать тепловой насос подходящей мощности и оптимальную конфигурацию системы отопления.</p>
         </div>
         <div class="quote__body">
-            <div class="quote__form" role="group" aria-label="Форма расчёта" aria-describedby="quote-preview">
-                <div class="quote__fields">
-                    <input aria-label="Ваше имя" autocomplete="given-name" placeholder="Ваше имя">
-                    <input type="tel" aria-label="Номер телефона" autocomplete="tel" placeholder="+7 (000) 000–00–00">
-                    <input type="number" aria-label="Площадь дома в квадратных метрах" min="1" placeholder="Площадь, м²">
-                    <select aria-label="Тип текущего отопления">
-                        <option value="">Тип текущего отопления</option>
-                        <option>Электрокотёл</option>
-                        <option>Газовое отопление</option>
-                        <option>Пеллеты или дрова</option>
-                        <option>Отопление ещё не установлено</option>
-                    </select>
-                </div>
-                <label class="quote__consent"><input type="checkbox"> Согласен на обработку персональных данных и с политикой конфиденциальности</label>
-                <button class="button" type="button" disabled>Рассчитать экономичное отопление</button>
-                <p class="quote__preview" id="quote-preview">Для расчёта позвоните нам.</p>
-            </div>
+            <form class="quote__form" action="{% url 'home' %}#quote" method="post" aria-labelledby="quote-title">
+                {% include "includes/quote-fields.html" with form=quote_form %}
+            </form>
             <div class="contacts quote__contacts">
                 {% include "includes/phone.html" %}
                 {% include "includes/messengers.html" %}
