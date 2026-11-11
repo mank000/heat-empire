@@ -2,6 +2,7 @@ import re
 
 from django.core.validators import MinValueValidator, RegexValidator, URLValidator
 from django.db import models
+from django.utils import timezone
 
 from .phones import format_phone
 
@@ -94,3 +95,49 @@ class LegalPage(models.Model):
 
     def __str__(self):
         return self.get_kind_display()
+
+
+class TelegramSubscriber(models.Model):
+    chat_id = models.BigIntegerField("ID чата", primary_key=True)
+    active = models.BooleanField("Подписан", default=True)
+    pin_fingerprint = models.CharField(max_length=64, blank=True)
+    pin_attempts = models.PositiveSmallIntegerField(default=0)
+    pin_blocked_until = models.DateTimeField(null=True, blank=True)
+    last_update_id = models.BigIntegerField(default=0)
+    joined_at = models.DateTimeField("Дата подписки", auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Подписчик Telegram"
+        verbose_name_plural = "Подписчики Telegram"
+
+
+class TelegramBroadcast(models.Model):
+    text = models.CharField("Сообщение", max_length=4096)
+    queued_at = models.DateTimeField("Дата постановки в очередь", null=True, blank=True)
+
+    class Meta:
+        verbose_name = "Рассылка Telegram"
+        verbose_name_plural = "Рассылки Telegram"
+        ordering = ("-pk",)
+
+    def __str__(self):
+        return f"Рассылка №{self.pk}"
+
+
+class TelegramDelivery(models.Model):
+    class Status(models.TextChoices):
+        PENDING = "pending", "В очереди"
+        SENT = "sent", "Отправлено"
+        SKIPPED = "skipped", "Пропущено"
+        FAILED = "failed", "Ошибка"
+
+    subscriber = models.ForeignKey(TelegramSubscriber, on_delete=models.CASCADE)
+    broadcast = models.ForeignKey(TelegramBroadcast, on_delete=models.CASCADE, null=True, blank=True)
+    text = models.CharField(max_length=4096)
+    requires_pin = models.BooleanField(default=False)
+    status = models.CharField(max_length=8, choices=Status.choices, default=Status.PENDING)
+    attempts = models.PositiveSmallIntegerField(default=0)
+    available_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        indexes = [models.Index(fields=("status", "available_at"))]

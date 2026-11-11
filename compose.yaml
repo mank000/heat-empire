@@ -18,5 +18,23 @@ services:
       retries: 5
       start_period: 15s
 
+  bot:
+    build: .
+    profiles: ["bot"]
+    command: ["python", "manage.py", "run_telegram_bot"]
+    init: true
+    restart: unless-stopped
+    depends_on:
+      web:
+        condition: service_healthy
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY:-django-insecure-local-compose-only}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_ACCESS_PIN: ${TELEGRAM_ACCESS_PIN:-}
+    volumes:
+      - site_data:/data
+    security_opt:
+      - no-new-privileges:true
+
 volumes:
   site_data:
