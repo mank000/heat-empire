@@ -1,0 +1,685 @@
+/* Первый экран и принцип работы. */
+@media (max-width: 1199px) {
+    .container,
+    .container--wide,
+    .container--quote {
+        width: calc(100% - 40px);
+    }
+
+    h2 {
+        font-size: clamp(40px, 5.75vw, 60px);
+    }
+
+    .intro {
+        max-width: 500px;
+        margin-top: 10px;
+    }
+
+    .hero {
+        min-height: auto;
+        padding-bottom: 20px;
+    }
+
+    .hero__heading {
+        overflow: clip;
+    }
+
+    .hero h1 {
+        width: 119%;
+        font-size: clamp(36px, 6vw, 68px);
+        transform: scaleX(.84);
+    }
+
+    .hero__accent-break {
+        display: none;
+    }
+
+    .hero__content {
+        padding-top: 32px;
+    }
+
+    .hero__content p {
+        margin: 12px 0 24px;
+    }
+
+    .hero__media {
+        position: relative;
+        width: calc(100% - 40px);
+        max-width: 1000px;
+        margin: 36px auto 0;
+    }
+
+    .hero__picture {
+        position: static;
+        aspect-ratio: 1.2;
+        background-position: 94% 100%;
+        background-size: auto 173%;
+        clip-path: none;
+    }
+
+    .benefits {
+        right: auto;
+        bottom: 16px;
+        left: 50%;
+        display: grid;
+        width: min(556px, calc(100% - 32px));
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        transform: translateX(-50%);
+        padding: 0;
+    }
+
+    .benefits li:nth-child(n) {
+        min-width: 0;
+    }
+
+    .benefits li img {
+        flex: 0 0 36px;
+        width: 36px;
+        height: 36px;
+        object-fit: contain;
+    }
+
+    .how {
+        padding-top: 76px;
+    }
+
+    .how__grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 8px;
+    }
+
+    .how__steps {
+        gap: 8px;
+    }
+
+    .how__diagram {
+        padding: 32px 24px;
+    }
+
+    .how__diagram img {
+        width: min(100%, 404px);
+        height: auto;
+        aspect-ratio: 404 / 266;
+    }
+
+    .how__diagram figcaption {
+        max-width: 600px;
+    }
+
+    .how__consultation .phone {
+        text-align: center;
+    }
+
+    .gallery {
+        margin-top: 36px;
+    }
+}
+
+@media (max-width: 639px) {
+    h2 {
+        font-size: clamp(30px, 8.9vw, 40px);
+    }
+
+    .site-header__inner {
+        width: calc(100% - 32px);
+        min-height: 70px;
+    }
+
+    .site-header__inner > a img {
+        width: 88px;
+        height: auto;
+    }
+
+    .site-header .contacts,
+    .site-header .messengers {
+        gap: 4px;
+    }
+
+    .site-header .phone,
+    .site-header .messengers > a {
+        display: grid;
+        width: 32px;
+        min-height: 44px;
+        place-items: center;
+    }
+
+    .site-header .phone {
+        position: relative;
+    }
+
+    .site-header .phone strong,
+    .site-header .phone small {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip-path: inset(50%);
+        white-space: nowrap;
+    }
+
+    .site-header .phone__icon {
+        display: block;
+        color: var(--accent);
+    }
+
+    .site-header .messengers img {
+        width: 24px;
+        height: 24px;
+    }
+
+    .site-header .messengers > img {
+        margin-inline: 4px;
+    }
+
+    .hero h1 {
+        max-width: 390px;
+        font-size: clamp(32px, 10vw, 46px);
+    }
+
+    .hero__line-break {
+        display: none;
+    }
+
+    .hero__accent {
+        display: block;
+    }
+
+    .hero__content p {
+        margin: 8px 0 24px;
+        line-height: 1.32;
+    }
+
+    .hero .actions,
+    .how__consultation {
+        display: grid;
+        gap: 8px;
+    }
+
+    .hero__media {
+        margin-top: 42px;
+    }
+
+    .hero__picture {
+        aspect-ratio: 1.67;
+        background-position: right 93%;
+        background-size: auto 185%;
+    }
+
+    .benefits {
+        position: static;
+        width: 100%;
+        gap: 8px;
+        margin-top: 8px;
+        transform: none;
+    }
+
+    .benefits li {
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px 6px;
+        text-align: center;
+        font-size: 12px;
+        line-height: 1.4;
+    }
+
+    .benefits li img {
+        flex-basis: 34px;
+        width: 48px;
+        height: 34px;
+    }
+
+    .benefits__mobile-break {
+        display: initial;
+    }
+
+    .benefits__desktop-break {
+        display: none;
+    }
+
+    .how {
+        padding-top: 60px;
+    }
+
+    .how__grid {
+        gap: 5px;
+        margin-top: 24px;
+    }
+
+    .how__steps {
+        gap: 5px;
+    }
+
+    .how__steps li {
+        padding: 15px;
+    }
+
+    .how__steps .step-number {
+        bottom: -32px;
+        font-size: 132px;
+    }
+
+    .how__diagram {
+        padding: 22px 16px;
+    }
+
+    .how__consultation .phone {
+        width: 100%;
+        min-width: 0;
+        min-height: 46px;
+    }
+
+    .gallery__group {
+        gap: 6px;
+        padding-right: 6px;
+    }
+
+    .gallery__group li {
+        flex-basis: 170px;
+    }
+
+    .gallery img {
+        width: 170px;
+        height: 170px;
+    }
+}
+
+/* Сравнение, этапы работ и кейсы. */
+@media (max-width: 1199px) {
+    .comparison,
+    .work {
+        padding-top: 76px;
+    }
+
+    .four-columns {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .comparison .four-columns,
+    .work .four-columns {
+        margin-top: 24px;
+    }
+
+    .comparison__heading h3 {
+        font-size: 28px;
+    }
+
+    .comparison__heading .tag {
+        padding-inline: 20px;
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 17% 100%);
+    }
+
+    .work {
+        padding-bottom: 76px;
+    }
+
+    .work__steps li {
+        min-height: 240px;
+        padding-bottom: 84px;
+    }
+
+    .work__steps h3 {
+        font-size: 28px;
+    }
+
+    .work__steps .step-number {
+        bottom: -35px;
+        font-size: 136px;
+    }
+
+    .cases {
+        padding: 54px 0 50px;
+    }
+
+    .cases h2 br,
+    .case h3 br {
+        display: none;
+    }
+
+    .cases__list {
+        grid-auto-flow: column;
+        grid-auto-columns: 100%;
+        gap: 12px;
+        align-items: start;
+        margin-top: 24px;
+        padding-bottom: 5px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+    }
+
+    .case {
+        min-height: 0;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 22px;
+        padding: 24px;
+        clip-path: none;
+        scroll-snap-align: start;
+    }
+
+    .case__copy {
+        padding: 0;
+    }
+
+    .case h3 {
+        font-size: 32px;
+    }
+
+    .case .eyebrow {
+        margin-top: 16px;
+    }
+
+    .solution {
+        margin-top: 16px;
+        border: 1px solid #ecd6df;
+    }
+
+    .solution h4 {
+        max-width: 100%;
+    }
+
+    .case__tags {
+        max-width: none;
+    }
+
+    .case__tags .tag {
+        padding: 0;
+        background: none;
+        color: var(--accent);
+        font-size: 13px;
+        clip-path: none;
+    }
+
+    .case__price {
+        min-width: 0;
+    }
+
+    .case-photo {
+        min-height: 0;
+        aspect-ratio: 1.35;
+    }
+}
+
+@media (max-width: 639px) {
+    .comparison,
+    .work {
+        padding-top: 60px;
+    }
+
+    .work {
+        padding-bottom: 60px;
+    }
+
+    .comparison .four-columns,
+    .work .four-columns,
+    .cases__list {
+        display: grid;
+        width: calc(100% + 20px);
+        grid-auto-flow: column;
+        grid-template-columns: none;
+        grid-auto-columns: 100%;
+        gap: 8px;
+        padding: 0 20px 5px 0;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+    }
+
+    .comparison__card,
+    .work__steps li {
+        scroll-snap-align: start;
+    }
+
+    .comparison__card--featured {
+        order: -1;
+    }
+
+    .comparison__heading h3 {
+        font-size: 26px;
+    }
+
+    .comparison__row {
+        grid-template-columns: minmax(0, 1fr) min(122px, 45%);
+    }
+
+    .work__steps h3 {
+        font-size: 27px;
+    }
+
+    .cases {
+        padding: 32px 0 54px;
+    }
+
+    .case {
+        gap: 24px;
+        padding: 20px 16px 24px;
+    }
+
+    .case h3 {
+        font-size: 27px;
+    }
+
+    .solution h4 {
+        padding-right: 30px;
+    }
+
+    .case__price {
+        gap: 5px;
+        font-size: 12px;
+    }
+
+    .case__price img {
+        width: 38px;
+        height: 38px;
+    }
+
+    .case__price strong {
+        font-size: 14px;
+    }
+
+    .case__summary img {
+        width: 58px;
+        height: 58px;
+    }
+
+    .case-photo {
+        aspect-ratio: 1.15;
+        clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 24px 100%, 0 calc(100% - 24px));
+    }
+
+    .case-photo__controls {
+        right: 50%;
+        bottom: 10px;
+        transform: translateX(50%);
+    }
+}
+
+/* Форма расчёта и подвал. */
+@media (max-width: 1199px) {
+    .quote {
+        padding-bottom: 54px;
+    }
+
+    .quote__panel {
+        min-height: 0;
+        grid-template-rows: auto auto;
+        background: white;
+        clip-path: none;
+    }
+
+    .quote__heading {
+        padding: 30px 32px;
+        clip-path: none;
+    }
+
+    .quote h2 {
+        font-size: clamp(40px, 5.75vw, 60px);
+    }
+
+    .quote h2 br {
+        display: none;
+    }
+
+    .quote__body {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
+        align-items: stretch;
+        padding: 0;
+        background: none;
+    }
+
+    .quote__form {
+        width: 100%;
+        padding: 60px clamp(32px, 8vw, 70px);
+        background: linear-gradient(#1117, #1119), url("../img/plant.webp") center / cover no-repeat;
+        clip-path: polygon(0 0, 100% 0, 100% calc(100% - 56px), calc(100% - 56px) 100%, 0 100%);
+    }
+
+    .quote__fields {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .quote__fields input,
+    .quote__fields select {
+        min-width: 0;
+    }
+
+    .quote__consent {
+        margin: 24px 0 16px;
+    }
+
+    .quote__contacts {
+        justify-content: center;
+        padding: 18px 16px;
+        clip-path: none;
+    }
+
+    .footer {
+        min-height: 0;
+        padding: 40px 0;
+        clip-path: none;
+    }
+
+    .footer > .container {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, .75fr);
+        gap: 26px 32px;
+        align-items: start;
+    }
+
+    .footer__top,
+    .footer__bottom {
+        display: contents;
+    }
+
+    .footer .contacts {
+        flex-direction: column-reverse;
+        gap: 20px;
+        align-items: flex-start;
+    }
+
+    .footer .messengers {
+        gap: 12px;
+    }
+
+    .footer .messengers img {
+        width: 40px;
+        height: 40px;
+    }
+
+    .footer .phone {
+        text-align: left;
+    }
+
+    .footer .phone strong {
+        font: 600 24px/1.1 "TikTok Sans", Arial, sans-serif;
+    }
+
+    .footer .phone small {
+        font-size: 16px;
+    }
+
+    .footer__bottom > span {
+        color: #b9b9b9;
+    }
+}
+
+@media (max-width: 639px) {
+    .footer > .container {
+        width: calc(100% - 32px);
+    }
+
+    .quote {
+        width: 100%;
+        padding-bottom: 36px;
+    }
+
+    .quote__heading,
+    .quote__body {
+        padding-inline: 16px;
+    }
+
+    .quote__heading {
+        padding-block: 28px 24px;
+    }
+
+    .quote h2 {
+        font-size: clamp(30px, 8.9vw, 40px);
+    }
+
+    .quote .intro {
+        line-height: 1.32;
+    }
+
+    .quote__body::after {
+        grid-row: 2;
+        aspect-ratio: 1.27;
+        margin-top: 24px;
+        background: linear-gradient(#1114, #1115), url("../img/plant.webp") center / cover no-repeat;
+        clip-path: polygon(0 0, 100% 0, 100% calc(100% - 36px), calc(100% - 36px) 100%, 0 100%);
+        content: "";
+    }
+
+    .quote__form {
+        padding: 0;
+        background: none;
+        color: var(--ink);
+        clip-path: none;
+    }
+
+    .quote__fields {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .quote__fields input,
+    .quote__fields select {
+        border-color: transparent;
+        background: var(--background);
+    }
+
+    .quote__form .button {
+        padding-inline: 8px;
+        font-size: 14px;
+    }
+
+    .quote__preview {
+        color: var(--muted);
+    }
+
+    .quote__contacts {
+        gap: 8px 16px;
+        flex-wrap: wrap;
+        padding-inline: 0;
+    }
+
+    .footer > .container {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .footer__top > a {
+        justify-self: start;
+    }
+
+    .footer__bottom > span {
+        margin-top: 20px;
+    }
+}

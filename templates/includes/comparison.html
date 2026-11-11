@@ -2,7 +2,7 @@
 <section class="comparison section container" aria-labelledby="comparison-title">
     <h2 id="comparison-title">Чем выгоднее отапливать ваш дом?</h2>
     <p class="intro">Сравните четыре популярных решения по расходам, удобству и возможностям — и выберите подходящее для своего дома.</p>
-    <div class="four-columns">
+    <div class="four-columns" data-scroll-panel="Варианты отопления">
         {% for system in heating_systems %}
             <article class="comparison__card{% if system.featured %} comparison__card--featured{% endif %}">
                 <div class="comparison__heading">
