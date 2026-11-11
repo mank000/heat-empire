@@ -1,0 +1,47 @@
+name: Deploy Heat Empire
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: heat-empire-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+      - name: Build and test
+        run: |
+          docker build --platform linux/amd64 -t "heat-build:$GITHUB_SHA" .
+          docker run --rm -e DJANGO_SECRET_KEY=ci-tests-only "heat-build:$GITHUB_SHA" python manage.py test
+          docker run --rm -e DJANGO_SECRET_KEY=ci-tests-only "heat-build:$GITHUB_SHA" python manage.py makemigrations --check
+      - name: Deploy to VPS
+        env:
+          DEPLOY_KEY: ${{ secrets.HEAT_DEPLOY_KEY }}
+          DEPLOY_HOST_KEY: ${{ secrets.HEAT_DEPLOY_HOST_KEY }}
+          DEPLOY_HOST: ${{ secrets.HEAT_DEPLOY_HOST }}
+        run: |
+          set -euo pipefail
+          [[ -n "$DEPLOY_KEY" && -n "$DEPLOY_HOST_KEY" && -n "$DEPLOY_HOST" ]]
+          umask 077
+          ssh_dir=$(mktemp -d "$RUNNER_TEMP/heat-ssh.XXXXXX")
+          printf '%s\n' "$DEPLOY_KEY" > "$ssh_dir/key"
+          printf '%s\n' "$DEPLOY_HOST_KEY" > "$ssh_dir/known_hosts"
+          image_container=$(docker create "heat-build:$GITHUB_SHA")
+          {
+            printf '%s\n' "$GITHUB_SHA"
+            docker export "$image_container" | gzip -1
+          } | ssh -T -o BatchMode=yes -o ConnectTimeout=15 -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$ssh_dir/known_hosts" \
+            -i "$ssh_dir/key" "heat-ci@$DEPLOY_HOST"
