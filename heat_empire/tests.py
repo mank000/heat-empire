@@ -29,3 +29,13 @@ class SiteContactsTests(TestCase):
         self.assertContains(response, new_contacts["address"])
         for field in ("telegram_url", "whatsapp_url", "max_url"):
             self.assertContains(response, f'href="{new_contacts[field]}"', count=3)
+
+
+class NotFoundTests(TestCase):
+    def test_unknown_path_has_custom_404_with_home_link_and_contacts(self):
+        response = self.client.get("/does-not-exist/")
+
+        self.assertTemplateUsed(response, "404.html")
+        self.assertContains(response, "Страница не найдена", status_code=404)
+        self.assertContains(response, "Вернуться на главную", status_code=404)
+        self.assertContains(response, 'href="tel:+79241317130"', count=2, status_code=404)

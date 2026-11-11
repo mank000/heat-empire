@@ -1,0 +1,12 @@
+{% load static %}
+<header class="site-header">
+    <div class="container site-header__inner">
+        <a href="{% url 'home' %}" aria-label="Империя тепла, главная">
+            <img src="{% static 'img/logo.webp' %}" width="114" height="63" alt="Империя тепла">
+        </a>
+        <div class="contacts">
+            {% include "includes/phone.html" with compact=True %}
+            {% include "includes/messengers.html" %}
+        </div>
+    </div>
+</header>
