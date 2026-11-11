@@ -16,20 +16,13 @@ if ("IntersectionObserver" in window) {
 }
 
 const gallery = document.querySelector(".gallery");
-const galleryToggle = gallery?.querySelector(".gallery__toggle");
 
-if (galleryToggle && "IntersectionObserver" in window) {
+if (gallery && "IntersectionObserver" in window) {
     const galleryObserver = new IntersectionObserver(([entry]) => {
         gallery.classList.toggle("gallery--visible", entry.isIntersecting);
     });
 
-    galleryToggle.addEventListener("click", () => {
-        const paused = gallery.classList.toggle("gallery--paused");
-        galleryToggle.textContent = paused ? "Продолжить" : "Пауза";
-    });
-
     gallery.classList.add("gallery--motion");
-    galleryToggle.hidden = false;
     galleryObserver.observe(gallery);
 }
 

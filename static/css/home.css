@@ -395,20 +395,6 @@ a {
     clip-path: polygon(0 0, 100% 0, 100% 100%, 16% 100%, 0 84%);
 }
 
-.gallery__toggle {
-    position: absolute;
-    right: 16px;
-    bottom: 16px;
-    min-width: 84px;
-    min-height: 34px;
-    padding-inline: 12px;
-    border: 1px solid white;
-    border-radius: 2px;
-    background: var(--ink);
-    color: white;
-    cursor: pointer;
-}
-
 .four-columns {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
