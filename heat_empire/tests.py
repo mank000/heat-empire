@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import Client, TestCase
 from django.urls import reverse
+
+from .models import QuoteRequest
 
 
 class SiteContactsTests(TestCase):
@@ -39,3 +41,54 @@ class NotFoundTests(TestCase):
         self.assertContains(response, "Страница не найдена", status_code=404)
         self.assertContains(response, "Вернуться на главную", status_code=404)
         self.assertContains(response, 'href="tel:+79241317130"', count=2, status_code=404)
+
+
+class QuoteRequestTests(TestCase):
+    def submission(self, source):
+        return {
+            "source": source,
+            f"{source}-name": "Тестовая заявка",
+            f"{source}-phone": "+7 (900) 123-45-67",
+            f"{source}-area": "120",
+            f"{source}-heating": QuoteRequest.Heating.ELECTRIC,
+            f"{source}-consent": "on",
+        }
+
+    def test_both_forms_save_to_admin_and_show_confirmation_once(self):
+        home = reverse("home")
+        for source in QuoteRequest.Source.values:
+            with self.subTest(source=source):
+                result = self.client.post(home, self.submission(source))
+                self.assertRedirects(result, home, status_code=303, fetch_redirect_response=False)
+                quote = QuoteRequest.objects.get(source=source)
+                self.assertEqual(quote.phone, "+7 (900) 123-45-67")
+                self.assertEqual(quote.area, 120)
+                self.assertContains(self.client.get(home), 'id="quote-success"')
+                self.assertNotContains(self.client.get(home), 'id="quote-success"')
+
+        admin_url = reverse("admin:heat_empire_quoterequest_changelist")
+        self.assertEqual(self.client.get(admin_url).status_code, 302)
+        self.client.force_login(get_user_model().objects.create_superuser(username="operator"))
+        admin_page = self.client.get(admin_url)
+        self.assertContains(admin_page, "Тестовая заявка", count=2)
+        self.assertContains(admin_page, "Модальное окно")
+
+    def test_invalid_modal_reopens_with_errors_and_does_not_save(self):
+        source = QuoteRequest.Source.MODAL
+        data = self.submission(source)
+        data.update({"modal-area": "0", "modal-heating": "invalid", "modal-consent": ""})
+
+        response = self.client.post(reverse("home"), data)
+
+        self.assertContains(response, "data-open-on-load", status_code=422)
+        self.assertContains(response, 'value="Тестовая заявка"', status_code=422)
+        self.assertEqual(set(response.context["modal_form"].errors), {"area", "heating", "consent"})
+        self.assertFalse(QuoteRequest.objects.exists())
+
+    def test_requests_require_csrf(self):
+        client = Client(enforce_csrf_checks=True)
+
+        response = client.post(reverse("home"), self.submission(QuoteRequest.Source.SECTION))
+
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(QuoteRequest.objects.exists())

@@ -661,10 +661,6 @@
         font-size: 14px;
     }
 
-    .quote__preview {
-        color: var(--muted);
-    }
-
     .quote__contacts {
         gap: 8px 16px;
         flex-wrap: wrap;

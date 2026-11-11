@@ -1,6 +1,6 @@
 import re
 
-from django.core.validators import RegexValidator, URLValidator
+from django.core.validators import MinValueValidator, RegexValidator, URLValidator
 from django.db import models
 
 
@@ -39,3 +39,30 @@ class SiteContacts(models.Model):
             ("MAX", "img/max.svg", self.max_url),
             ("WhatsApp", "img/whatsapp.svg", self.whatsapp_url),
         )
+
+
+class QuoteRequest(models.Model):
+    class Heating(models.TextChoices):
+        ELECTRIC = "electric", "Электрокотёл"
+        GAS = "gas", "Газовое отопление"
+        SOLID = "solid", "Пеллеты или дрова"
+        NONE = "none", "Отопление ещё не установлено"
+
+    class Source(models.TextChoices):
+        SECTION = "section", "Форма на главной"
+        MODAL = "modal", "Модальное окно"
+
+    name = models.CharField("Имя", max_length=100)
+    phone = models.CharField("Телефон", max_length=40, validators=[phone_validator])
+    area = models.PositiveIntegerField("Площадь, м²", validators=[MinValueValidator(1)])
+    heating = models.CharField("Текущее отопление", max_length=16, choices=Heating.choices)
+    source = models.CharField("Источник", max_length=10, choices=Source.choices)
+    created_at = models.DateTimeField("Дата заявки", auto_now_add=True)
+
+    class Meta:
+        ordering = ("-created_at", "-pk")
+        verbose_name = "Заявка на расчёт"
+        verbose_name_plural = "Заявки на расчёт"
+
+    def __str__(self):
+        return f"Заявка №{self.pk}"

@@ -768,16 +768,6 @@ a {
     width: 100%;
 }
 
-.quote__form .button:disabled {
-    cursor: not-allowed;
-}
-
-.quote__preview {
-    margin-top: 5px;
-    color: white;
-    font-size: 13px;
-}
-
 .quote__contacts {
     padding: 16px 26px;
     background: white;
