@@ -1,5 +1,6 @@
 from http import HTTPStatus
 
+from django.db import transaction
 from django.http import HttpResponseBadRequest, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -8,6 +9,7 @@ from django.views.generic import TemplateView
 from .content import HEATING_SYSTEMS, WORK_STAGES
 from .forms import QuoteRequestForm
 from .models import LegalPage, QuoteRequest, SiteContacts
+from .telegram_queue import enqueue_quote_notice
 
 
 class HomeView(TemplateView):
@@ -34,7 +36,9 @@ class HomeView(TemplateView):
         if form.is_valid():
             quote = form.save(commit=False)
             quote.source = source
-            quote.save()
+            with transaction.atomic():
+                quote.save()
+                enqueue_quote_notice(quote)
             request.session["quote_received"] = True
             return HttpResponseRedirect(reverse("home"), status=HTTPStatus.SEE_OTHER)
 
