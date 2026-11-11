@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}{{ page }} — Империя тепла{% endblock %}
+
+{% block extra_css %}
+    {% if not page.body %}<meta name="robots" content="noindex">{% endif %}
+    <link rel="stylesheet" href="{% static 'css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'css/responsive.css' %}">
+    <link rel="stylesheet" href="{% static 'css/legal-page.css' %}">
+{% endblock %}
+
+{% block content %}
+    {% include "includes/site-header.html" %}
+    <article class="legal-page container">
+        <h1>{{ page }}</h1>
+        <div class="legal-page__body">
+            {% if page.body %}
+                {{ page.body|linebreaks }}
+            {% else %}
+                <p>Информация будет добавлена.</p>
+            {% endif %}
+        </div>
+        <a class="button button--outline" href="{% url 'home' %}">Вернуться на главную</a>
+    </article>
+{% endblock %}
+
+{% block footer %}
+    {% include "includes/footer.html" %}
+{% endblock %}

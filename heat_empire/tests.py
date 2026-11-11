@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from .models import QuoteRequest
+from .models import LegalPage, QuoteRequest
 
 
 class SiteContactsTests(TestCase):
@@ -41,6 +41,28 @@ class NotFoundTests(TestCase):
         self.assertContains(response, "Страница не найдена", status_code=404)
         self.assertContains(response, "Вернуться на главную", status_code=404)
         self.assertContains(response, 'href="tel:+79241317130"', count=2, status_code=404)
+
+
+class LegalPageTests(TestCase):
+    def test_seeded_pages_are_linked_and_open(self):
+        home = self.client.get(reverse("home"))
+        for kind in LegalPage.Kind.values:
+            with self.subTest(kind=kind):
+                url = reverse(kind)
+                self.assertContains(home, f'href="{url}"')
+                self.assertContains(self.client.get(url), "Информация будет добавлена.")
+
+    def test_admin_changes_publish_as_text_without_rendering_html(self):
+        self.client.force_login(get_user_model().objects.create_superuser(username="editor"))
+        kind = LegalPage.Kind.PRIVACY
+        change_url = reverse("admin:heat_empire_legalpage_change", args=[kind])
+        content = "Первый абзац.\n\nТекст с <b>тегом</b>."
+        self.assertEqual(self.client.post(change_url, {"body": content}).status_code, 302)
+
+        self.assertContains(
+            self.client.get(reverse(kind)), "<p>Первый абзац.</p><p>Текст с &lt;b&gt;тегом&lt;/b&gt;.</p>", html=True
+        )
+        self.assertContains(self.client.get(reverse("company-details")), "Информация будет добавлена.")
 
 
 class QuoteRequestTests(TestCase):

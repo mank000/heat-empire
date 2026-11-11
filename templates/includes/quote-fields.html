@@ -12,9 +12,12 @@
         {% endif %}
     {% endfor %}
 </div>
-<label class="quote__consent" for="{{ form.consent.id_for_label }}">
+<div class="quote__consent">
     {{ form.consent }}
-    <span>{{ form.consent.label }}</span>
-</label>
+    <div>
+        <label for="{{ form.consent.id_for_label }}">{{ form.consent.label }}</label>.
+        <a href="{% url 'privacy-policy' %}" target="_blank" rel="noopener" aria-label="Политика конфиденциальности (в новой вкладке)">Политика конфиденциальности</a>
+    </div>
+</div>
 {{ form.consent.errors }}
 <button class="button" type="submit">Рассчитать экономичное отопление</button>

@@ -66,3 +66,24 @@ class QuoteRequest(models.Model):
 
     def __str__(self):
         return f"Заявка №{self.pk}"
+
+
+class LegalPage(models.Model):
+    class Kind(models.TextChoices):
+        PRIVACY = "privacy-policy", "Политика конфиденциальности"
+        COMPANY = "company-details", "Реквизиты компании"
+
+    kind = models.CharField("Страница", max_length=16, choices=Kind.choices, primary_key=True)
+    body = models.TextField(
+        "Текст страницы",
+        blank=True,
+        help_text="Разделяйте абзацы пустой строкой. Текст публикуется после сохранения.",
+    )
+
+    class Meta:
+        ordering = ("kind",)
+        verbose_name = "Юридическая страница"
+        verbose_name_plural = "Юридические страницы"
+
+    def __str__(self):
+        return self.get_kind_display()

@@ -1,0 +1,19 @@
+.legal-page {
+    padding-block: clamp(40px, 7vw, 100px);
+}
+
+.legal-page h1 {
+    font-size: clamp(28px, 5vw, 60px);
+    overflow-wrap: anywhere;
+}
+
+.legal-page__body {
+    max-width: 72ch;
+    margin-block: 24px 32px;
+    overflow-wrap: anywhere;
+    line-height: 1.55;
+}
+
+.legal-page__body p + p {
+    margin-top: 1em;
+}
