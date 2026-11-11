@@ -141,3 +141,16 @@ class TelegramDelivery(models.Model):
 
     class Meta:
         indexes = [models.Index(fields=("status", "available_at"))]
+
+
+class TelegramBotSettings(models.Model):
+    encrypted_token = models.TextField(blank=True)
+    pin_hash = models.CharField(max_length=128, blank=True)
+
+    class Meta:
+        verbose_name = "Настройки Telegram-бота"
+        verbose_name_plural = "Настройки Telegram-бота"
+        constraints = [models.CheckConstraint(condition=models.Q(id=1), name="telegram_bot_settings_singleton")]
+
+    def __str__(self):
+        return "Настройки Telegram-бота"

@@ -1,9 +1,19 @@
 from django.contrib import admin
+from django.contrib.auth.hashers import make_password
 from django.db.models import Count, Q
 from django.utils.text import Truncator
 
-from .forms import SiteContactsForm
-from .models import LegalPage, QuoteRequest, SiteContacts, TelegramBroadcast, TelegramDelivery, TelegramSubscriber
+from .forms import SiteContactsForm, TelegramBotSettingsForm
+from .models import (
+    LegalPage,
+    QuoteRequest,
+    SiteContacts,
+    TelegramBotSettings,
+    TelegramBroadcast,
+    TelegramDelivery,
+    TelegramSubscriber,
+)
+from .telegram_credentials import token_cipher
 from .telegram_queue import enqueue_broadcast
 
 
@@ -96,3 +106,43 @@ class TelegramBroadcastAdmin(admin.ModelAdmin):
     def queue_broadcasts(self, request, queryset):
         count = sum(enqueue_broadcast(pk) for pk in queryset.values_list("pk", flat=True))
         self.message_user(request, f"Поставлено в очередь сообщений: {count}.")
+
+
+@admin.register(TelegramBotSettings)
+class TelegramBotSettingsAdmin(admin.ModelAdmin):
+    form = TelegramBotSettingsForm
+    fields = ("bot_token", "access_pin", "credentials_saved")
+    readonly_fields = ("credentials_saved",)
+    actions = None
+
+    @admin.display(description="Настройки из админки")
+    def credentials_saved(self, obj):
+        token = "токен сохранён" if obj.encrypted_token else "токен не задан"
+        pin = "PIN сохранён" if obj.pin_hash else "PIN не задан"
+        return f"{token}, {pin}"
+
+    def has_module_permission(self, request):
+        return request.user.is_superuser
+
+    def has_view_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_change_permission(self, request, obj=None):
+        return request.user.is_superuser
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def save_model(self, request, obj, form, change):
+        fields = []
+        if token := form.cleaned_data["bot_token"]:
+            obj.encrypted_token = token_cipher().encrypt(token.encode()).decode()
+            fields.append("encrypted_token")
+        if pin := form.cleaned_data["access_pin"]:
+            obj.pin_hash = make_password(pin)
+            fields.append("pin_hash")
+        if fields:
+            obj.save(update_fields=fields)

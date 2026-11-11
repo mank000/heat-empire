@@ -1,0 +1,35 @@
+limit_req_zone $binary_remote_addr zone=heat_preview_login:1m rate=12r/m;
+
+server {
+    listen 80;
+    server_name __PREVIEW_IP__;
+    server_tokens off;
+    location ^~ /.well-known/acme-challenge/ { root /var/www/heat-empire-acme; }
+    location / { return 308 https://__PREVIEW_IP__$request_uri; }
+}
+
+server {
+    # Clients connecting to a literal IP usually omit SNI.
+    listen 443 ssl default_server;
+    server_name __PREVIEW_IP__;
+    server_tokens off;
+
+    ssl_certificate __CERT_DIR__/fullchain.pem;
+    ssl_certificate_key __CERT_DIR__/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    add_header X-Robots-Tag "noindex, nofollow" always;
+
+    if ($host != __PREVIEW_IP__) { return 444; }
+
+    proxy_set_header Host $host;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header X-Forwarded-Proto https;
+
+    location = /admin/login/ {
+        limit_req zone=heat_preview_login burst=6 nodelay;
+        limit_req_status 429;
+        proxy_pass http://127.0.0.1:__HEAT_PORT__;
+    }
+
+    location / { proxy_pass http://127.0.0.1:__HEAT_PORT__; }
+}

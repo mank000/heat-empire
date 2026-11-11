@@ -5,6 +5,7 @@ from time import sleep
 from urllib.error import HTTPError, URLError
 from urllib.request import Request, urlopen
 
+from django.contrib.auth.hashers import check_password
 from django.db import transaction
 from django.utils import timezone
 from django.utils.crypto import salted_hmac
@@ -44,9 +45,10 @@ class TelegramAPI:
 
 
 class TelegramBot:
-    def __init__(self, api, pin):
+    def __init__(self, api, pin, pin_is_hashed=False):
         self.api = api
         self.pin = pin
+        self.pin_is_hashed = pin_is_hashed
         self.fingerprint = salted_hmac("heat-empire-telegram-pin", pin, algorithm="sha256").hexdigest()
 
     def has_access(self, subscriber):
@@ -97,7 +99,11 @@ class TelegramBot:
             subscriber.pin_attempts = 0
             subscriber.pin_blocked_until = None
 
-        if compare_digest(text.encode(), self.pin.encode()):
+        valid_pin = (
+            check_password(text, self.pin)
+            if self.pin_is_hashed else compare_digest(text.encode(), self.pin.encode())
+        )
+        if valid_pin:
             subscriber.pin_fingerprint = self.fingerprint
             subscriber.pin_attempts = 0
             return "PIN принят. Вы будете получать уведомления о новых заявках."
