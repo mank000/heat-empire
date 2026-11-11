@@ -699,10 +699,6 @@
         background-size: auto 144.4%;
     }
 
-    .gallery {
-        max-width: 1600px;
-    }
-
     .footer {
         clip-path: polygon(0 0, calc(50% + 362px) 0, calc(50% + 408px) 42px, 100% 42px, 100% 100%, 0 100%);
     }
