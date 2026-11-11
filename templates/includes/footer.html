@@ -16,8 +16,8 @@
                 <div class="footer__address">{{ contacts.address }}</div>
             </address>
             <div class="footer__legal">
-                <span>Реквизиты компании</span>
-                <span>Политика конфиденциальности</span>
+                <a href="{% url 'company-details' %}">Реквизиты компании</a>
+                <a href="{% url 'privacy-policy' %}">Политика конфиденциальности</a>
             </div>
             <span>Где разработан сайт</span>
         </div>

@@ -1,13 +1,13 @@
 from http import HTTPStatus
 
 from django.http import HttpResponseBadRequest, HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views.generic import TemplateView
 
 from .content import HEATING_SYSTEMS, WORK_STAGES
 from .forms import QuoteRequestForm
-from .models import QuoteRequest, SiteContacts
+from .models import LegalPage, QuoteRequest, SiteContacts
 
 
 class HomeView(TemplateView):
@@ -45,3 +45,8 @@ class HomeView(TemplateView):
 
 def page_not_found(request, exception):
     return render(request, "404.html", {"contacts": SiteContacts.objects.get(pk=1)}, status=404)
+
+
+def legal_page(request, kind):
+    page = get_object_or_404(LegalPage, pk=kind)
+    return render(request, "legal-page.html", {"page": page, "contacts": SiteContacts.objects.get(pk=1)})
