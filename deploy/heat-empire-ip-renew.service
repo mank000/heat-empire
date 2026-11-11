@@ -1,0 +1,8 @@
+[Unit]
+Description=Renew the Heat Empire preview IP certificate
+After=network-online.target docker.service nginx.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/heat-empire-renew-ip
