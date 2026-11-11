@@ -66,15 +66,8 @@
 
     .gallery--motion:not(.gallery--visible) .gallery__track,
     .gallery--motion .gallery__viewport:hover .gallery__track,
-    .gallery--motion .gallery__viewport:focus .gallery__track,
-    .gallery--paused .gallery__track {
+    .gallery--motion .gallery__viewport:focus .gallery__track {
         animation-play-state: paused;
-    }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .gallery__toggle {
-        display: none;
     }
 }
 
