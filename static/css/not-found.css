@@ -1,0 +1,112 @@
+.not-found {
+    position: relative;
+    isolation: isolate;
+    min-height: 618px;
+    padding-block: 86px 130px;
+    text-align: center;
+}
+
+.not-found::before,
+.not-found::after {
+    position: absolute;
+    z-index: -1;
+    width: min(670px, 47%);
+    background-image: linear-gradient(#1117, #1117), url("../img/plant.webp");
+    background-size: cover;
+    content: "";
+}
+
+.not-found::before {
+    top: 0;
+    right: 0;
+    width: min(534px, 53%);
+    height: 126px;
+    background-position: center 32%;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 126px 100%);
+}
+
+.not-found::after {
+    bottom: 0;
+    left: 0;
+    height: 174px;
+    background-position: center 65%;
+    clip-path: polygon(0 0, calc(100% - 174px) 0, 100% 100%, 0 100%);
+}
+
+.not-found__code {
+    color: var(--accent);
+    font: 700 192px/.9 var(--heading-font);
+    transform: scaleX(.84);
+}
+
+.not-found h1 {
+    margin-top: 12px;
+    font-size: 56px;
+    transform: scaleX(.86);
+}
+
+.not-found__message {
+    max-width: 345px;
+    margin: 12px auto 24px;
+}
+
+.not-found .button {
+    padding-inline: 24px;
+}
+
+@media (max-width: 1199px) {
+    .not-found {
+        min-height: 654px;
+        padding-top: 110px;
+    }
+
+    .not-found::before {
+        height: 104px;
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 104px 100%);
+    }
+
+    .not-found::after {
+        width: 54%;
+        height: 136px;
+        clip-path: polygon(0 0, calc(100% - 136px) 0, 100% 100%, 0 100%);
+    }
+
+    .not-found h1 {
+        font-size: 38px;
+        transform: scaleX(.82);
+    }
+}
+
+@media (max-width: 639px) {
+    .not-found {
+        min-height: 572px;
+        padding-block: 102px 116px;
+    }
+
+    .not-found__content {
+        width: calc(100% - 32px);
+    }
+
+    .not-found__code {
+        font-size: 144px;
+    }
+
+    .not-found h1 {
+        font-size: 32px;
+    }
+
+    .not-found::before,
+    .not-found::after {
+        width: 72%;
+    }
+
+    .not-found::before {
+        height: 72px;
+        clip-path: polygon(0 0, 100% 0, 100% 100%, 72px 100%);
+    }
+
+    .not-found::after {
+        height: 90px;
+        clip-path: polygon(0 0, calc(100% - 90px) 0, 100% 100%, 0 100%);
+    }
+}

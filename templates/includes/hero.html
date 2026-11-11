@@ -1,16 +1,6 @@
 {% load static %}
 <div class="hero">
-    <header class="site-header">
-        <div class="container site-header__inner">
-            <a href="{% url 'home' %}" aria-label="Империя тепла, главная">
-                <img src="{% static 'img/logo.webp' %}" width="114" height="63" alt="Империя тепла">
-            </a>
-            <div class="contacts">
-                {% include "includes/phone.html" with compact=True %}
-                {% include "includes/messengers.html" %}
-            </div>
-        </div>
-    </header>
+    {% include "includes/site-header.html" %}
     <div class="container hero__content">
         <div class="hero__heading">
             <h1>Установим тепловой насос&nbsp;—<br class="hero__line-break"> чтобы вы платили меньше<br class="hero__accent-break"> <span class="hero__accent">за отопление</span></h1>
