@@ -21,8 +21,8 @@ class SiteContactsAdmin(admin.ModelAdmin):
 
 @admin.register(QuoteRequest)
 class QuoteRequestAdmin(admin.ModelAdmin):
-    list_display = ("id", "created_at", "name", "phone", "area", "heating", "source")
-    list_filter = ("source", "heating", "created_at")
+    list_display = ("id", "created_at", "name", "phone", "area", "heating", "source", "is_processed")
+    list_filter = ("is_processed", "source", "heating", "created_at")
     search_fields = ("name", "phone")
     readonly_fields = ("created_at", "name", "phone", "area", "heating", "source")
 

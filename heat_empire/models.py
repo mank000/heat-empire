@@ -64,6 +64,7 @@ class QuoteRequest(models.Model):
     heating = models.CharField("Текущее отопление", max_length=16, choices=Heating.choices)
     source = models.CharField("Источник", max_length=10, choices=Source.choices)
     created_at = models.DateTimeField("Дата заявки", auto_now_add=True)
+    is_processed = models.BooleanField("Обработана", default=False)
 
     class Meta:
         ordering = ("-created_at", "-pk")

@@ -86,6 +86,7 @@ class QuoteRequestTests(TestCase):
                 quote = QuoteRequest.objects.get(source=source)
                 self.assertEqual(quote.phone, "+7 (900) 123-45-67")
                 self.assertEqual(quote.area, 120)
+                self.assertFalse(quote.is_processed)
                 self.assertContains(self.client.get(home), 'id="quote-success"')
                 self.assertNotContains(self.client.get(home), 'id="quote-success"')
 
@@ -95,6 +96,23 @@ class QuoteRequestTests(TestCase):
         admin_page = self.client.get(admin_url)
         self.assertContains(admin_page, "Тестовая заявка", count=2)
         self.assertContains(admin_page, "Модальное окно")
+
+    def test_admin_can_mark_and_filter_processed_requests(self):
+        self.client.post(reverse("home"), self.submission(QuoteRequest.Source.SECTION))
+        quote = QuoteRequest.objects.get()
+        self.client.force_login(get_user_model().objects.create_superuser(username="operator"))
+        change_url = reverse("admin:heat_empire_quoterequest_change", args=[quote.pk])
+        list_url = reverse("admin:heat_empire_quoterequest_changelist")
+
+        self.assertEqual(self.client.post(change_url, {"is_processed": "on"}).status_code, 302)
+        quote.refresh_from_db()
+        self.assertTrue(quote.is_processed)
+        self.assertContains(self.client.get(list_url, {"is_processed__exact": "1"}), quote.name)
+        self.assertNotContains(self.client.get(list_url, {"is_processed__exact": "0"}), quote.name)
+
+        self.assertEqual(self.client.post(change_url, {}).status_code, 302)
+        quote.refresh_from_db()
+        self.assertFalse(quote.is_processed)
 
     def test_invalid_modal_reopens_with_errors_and_does_not_save(self):
         source = QuoteRequest.Source.MODAL
