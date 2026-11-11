@@ -1,7 +1,8 @@
 from http import HTTPStatus
 
+from django.conf import settings
 from django.db import transaction
-from django.http import HttpResponseBadRequest, HttpResponseRedirect
+from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views.generic import TemplateView
@@ -19,6 +20,7 @@ class HomeView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["contacts"] = SiteContacts.objects.get(pk=1)
+        context["preview_mode"] = settings.PREVIEW_MODE
         context.setdefault("quote_form", QuoteRequestForm(prefix=QuoteRequest.Source.SECTION))
         context.setdefault("modal_form", QuoteRequestForm(prefix=QuoteRequest.Source.MODAL))
         return context
@@ -28,6 +30,9 @@ class HomeView(TemplateView):
         return self.render_to_response(context)
 
     def post(self, request, *args, **kwargs):
+        if settings.PREVIEW_MODE:
+            return HttpResponseForbidden("В режиме предпросмотра заявки не отправляются.")
+
         source = request.POST.get("source")
         if source not in QuoteRequest.Source.values:
             return HttpResponseBadRequest("Неизвестная форма заявки.")

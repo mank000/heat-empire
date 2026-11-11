@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.test import Client, TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
 from .models import LegalPage, QuoteRequest, SiteContacts
@@ -132,4 +132,11 @@ class QuoteRequestTests(TestCase):
         response = client.post(reverse("home"), self.submission(QuoteRequest.Source.SECTION))
 
         self.assertEqual(response.status_code, 403)
+        self.assertFalse(QuoteRequest.objects.exists())
+
+    @override_settings(PREVIEW_MODE=True)
+    def test_preview_shows_forms_but_rejects_submissions(self):
+        url = reverse("home")
+        self.assertContains(self.client.get(url), "Заявки не отправляются.", count=2)
+        self.assertEqual(self.client.post(url, self.submission(QuoteRequest.Source.SECTION)).status_code, 403)
         self.assertFalse(QuoteRequest.objects.exists())

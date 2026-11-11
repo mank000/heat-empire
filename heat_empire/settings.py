@@ -14,6 +14,7 @@ ALLOWED_HOSTS = [
 ]
 USE_HTTPS = os.getenv("DJANGO_HTTPS") == "1"
 SERVE_STATIC = os.getenv("DJANGO_SERVE_STATIC") == "1"
+PREVIEW_MODE = os.getenv("DJANGO_PREVIEW") == "1"
 
 if USE_HTTPS:
     if DEBUG or len(SECRET_KEY) < 50 or SECRET_KEY.startswith("django-insecure-"):
