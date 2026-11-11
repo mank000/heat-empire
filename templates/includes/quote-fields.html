@@ -1,4 +1,4 @@
-{% csrf_token %}
+{% if not preview_mode %}{% csrf_token %}{% endif %}
 <input type="hidden" name="source" value="{{ form.prefix }}">
 {{ form.non_field_errors }}
 <div class="quote__fields">
@@ -20,4 +20,7 @@
     </div>
 </div>
 {{ form.consent.errors }}
-<button class="button" type="submit">Рассчитать экономичное отопление</button>
+<button class="button" type="submit"{% if preview_mode %} disabled{% endif %}>Рассчитать экономичное отопление</button>
+{% if preview_mode %}
+    <p class="quote__preview-note">Демонстрационная версия. Заявки не отправляются.</p>
+{% endif %}
