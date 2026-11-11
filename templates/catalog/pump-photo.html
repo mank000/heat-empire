@@ -1,0 +1,9 @@
+{% load static %}
+<figure class="catalog-photo">
+    {% if pump.image_url %}
+        <img src="{{ pump.image_url }}" alt="{{ pump }}" loading="lazy" referrerpolicy="no-referrer">
+    {% else %}
+        <img src="{% static 'img/outdoor-unit.webp' %}" alt="" loading="lazy" width="820" height="547">
+        <figcaption>Иллюстрация</figcaption>
+    {% endif %}
+</figure>

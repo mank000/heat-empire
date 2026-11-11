@@ -9,7 +9,7 @@ from django.views.generic import TemplateView
 
 from .content import HEATING_SYSTEMS, WORK_STAGES
 from .forms import QuoteRequestForm
-from .models import LegalPage, QuoteRequest, SiteContacts
+from .models import HeatPump, LegalPage, QuoteRequest, SiteContacts
 from .telegram_queue import enqueue_quote_notice
 
 
@@ -21,8 +21,15 @@ class HomeView(TemplateView):
         context = super().get_context_data(**kwargs)
         context["contacts"] = SiteContacts.objects.get(pk=1)
         context["preview_mode"] = settings.PREVIEW_MODE
-        context.setdefault("quote_form", QuoteRequestForm(prefix=QuoteRequest.Source.SECTION))
-        context.setdefault("modal_form", QuoteRequestForm(prefix=QuoteRequest.Source.MODAL))
+        pump_slug = self.request.GET.get("pump", "")
+        if self.request.method == "POST":
+            source = self.request.POST.get("source")
+            pump_slug = self.request.POST.get(f"{source}-heat_pump", "")
+        pump = HeatPump.objects.filter(slug=pump_slug, published=True).first() if pump_slug else None
+        context["selected_pump"] = pump
+        initial = {"heat_pump": pump}
+        context.setdefault("quote_form", QuoteRequestForm(prefix=QuoteRequest.Source.SECTION, initial=initial))
+        context.setdefault("modal_form", QuoteRequestForm(prefix=QuoteRequest.Source.MODAL, initial=initial))
         return context
 
     def get(self, request, *args, **kwargs):

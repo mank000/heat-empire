@@ -1,9 +1,14 @@
 {% if not preview_mode %}{% csrf_token %}{% endif %}
 <input type="hidden" name="source" value="{{ form.prefix }}">
 {{ form.non_field_errors }}
+{{ form.heat_pump }}
+{{ form.heat_pump.errors }}
+{% if selected_pump %}
+    <p class="quote__selection">Выбранная модель: {{ selected_pump }}</p>
+{% endif %}
 <div class="quote__fields">
     {% for field in form %}
-        {% if field.name != "consent" %}
+        {% if field.name != "consent" and not field.is_hidden %}
             <div class="quote__field">
                 <label class="visually-hidden" for="{{ field.id_for_label }}">{{ field.label }}</label>
                 {{ field }}

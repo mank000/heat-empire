@@ -816,3 +816,31 @@ a {
     display: grid;
     gap: 12px;
 }
+
+.site-header__catalog {
+    display: grid;
+    min-height: 44px;
+    place-items: center;
+    margin-inline: clamp(10px, 3vw, 40px) auto;
+    color: var(--ink);
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.site-header__catalog:hover,
+.site-header__catalog[aria-current] {
+    color: var(--accent-dark);
+    text-decoration: underline;
+    text-underline-offset: 5px;
+}
+
+@media (max-width: 360px) {
+    .site-header__inner > a:first-child img {
+        width: 76px;
+    }
+}
+
+.quote__form .quote__selection {
+    margin-bottom: 12px;
+    color: inherit;
+}

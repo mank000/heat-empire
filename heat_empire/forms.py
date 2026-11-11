@@ -2,7 +2,7 @@ from cryptography.fernet import InvalidToken
 from django import forms
 from django.conf import settings
 
-from .models import QuoteRequest, SiteContacts, TelegramBotSettings, TelegramSubscriber
+from .models import HeatPump, QuoteRequest, SiteContacts, TelegramBotSettings, TelegramSubscriber
 from .phones import format_phone
 from .telegram_credentials import PIN_PATTERN, TOKEN_PATTERN, load_credentials
 
@@ -26,6 +26,11 @@ class SiteContactsForm(forms.ModelForm):
 
 
 class QuoteRequestForm(forms.ModelForm):
+    heat_pump = forms.ModelChoiceField(
+        label="Модель из каталога", queryset=HeatPump.objects.filter(published=True),
+        to_field_name="slug", required=False, widget=forms.HiddenInput,
+        error_messages={"invalid_choice": "Эта модель больше недоступна. Обновите страницу и заполните заявку заново."},
+    )
     consent = forms.BooleanField(
         label="Согласен на обработку персональных данных для связи по заявке",
         error_messages={"required": "Подтвердите согласие на обработку данных."},
@@ -33,7 +38,7 @@ class QuoteRequestForm(forms.ModelForm):
 
     class Meta:
         model = QuoteRequest
-        fields = ("name", "phone", "area", "heating")
+        fields = ("name", "phone", "area", "heating", "heat_pump")
         field_classes = {"phone": FormattedPhoneField}
         widgets = {
             "name": forms.TextInput(attrs={"autocomplete": "given-name", "placeholder": "Ваше имя"}),
