@@ -679,3 +679,31 @@
         margin-top: 20px;
     }
 }
+
+/* На широких экранах фон заполняет окно, а контент и фото остаются в общей сетке. */
+@media (min-width: 1600px) {
+    .container {
+        width: min(1440px, calc(100% - 128px));
+    }
+
+    .container--wide {
+        width: min(1480px, calc(100% - 112px));
+    }
+
+    .container--quote {
+        width: min(1504px, calc(100% - 104px));
+    }
+
+    .hero__picture {
+        inset-inline: calc(50% - 109px) calc((100% - 1600px) / 2);
+        background-size: auto 144.4%;
+    }
+
+    .gallery {
+        max-width: 1600px;
+    }
+
+    .footer {
+        clip-path: polygon(0 0, calc(50% + 362px) 0, calc(50% + 408px) 42px, 100% 42px, 100% 100%, 0 100%);
+    }
+}
