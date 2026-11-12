@@ -68,7 +68,7 @@ class QuoteRequest(models.Model):
     created_at = models.DateTimeField("Дата заявки", auto_now_add=True)
     is_processed = models.BooleanField("Обработана", default=False)
     heat_pump = models.ForeignKey(
-        "HeatPump", verbose_name="Модель из каталога", on_delete=models.SET_NULL, null=True, blank=True,
+        "HeatingProduct", verbose_name="Модель из каталога", on_delete=models.SET_NULL, null=True, blank=True,
     )
 
     class Meta:
@@ -160,7 +160,14 @@ class TelegramBotSettings(models.Model):
         return "Настройки Telegram-бота"
 
 
-class HeatPump(models.Model):
+class HeatingProduct(models.Model):
+    class Category(models.TextChoices):
+        HEAT_PUMP = "heat-pump", "Тепловой насос"
+        ELECTRIC = "electric", "Электрический котёл"
+        SOLID = "solid", "Твердотопливный котёл"
+        GAS = "gas", "Газовый котёл"
+        PELLET = "pellet", "Пеллетный котёл"
+
     class Construction(models.TextChoices):
         MONOBLOCK = "monoblock", "Моноблок"
         SPLIT = "split", "Сплит"
@@ -169,6 +176,8 @@ class HeatPump(models.Model):
     class Supply(models.TextChoices):
         SINGLE = "single", "1 фаза"
         THREE = "three", "3 фазы"
+        EITHER = "either", "1 или 3 фазы"
+        NONE = "none", "Без электропитания"
 
     class Refrigerant(models.TextChoices):
         R32 = "R32", "R32"
@@ -179,9 +188,11 @@ class HeatPump(models.Model):
     series = models.CharField("Серия", max_length=100)
     model_code = models.CharField("Модель", max_length=80)
     slug = models.SlugField("Адрес карточки", max_length=100, unique=True)
-    construction = models.CharField("Конструкция", max_length=10, choices=Construction.choices)
-    supply = models.CharField("Питание", max_length=6, choices=Supply.choices)
-    refrigerant = models.CharField("Хладагент", max_length=5, choices=Refrigerant.choices)
+    category = models.CharField("Тип оборудования", max_length=10, choices=Category.choices, default=Category.HEAT_PUMP)
+    fuel = models.CharField("Топливо", max_length=100, blank=True)
+    construction = models.CharField("Конструкция", max_length=10, choices=Construction.choices, blank=True)
+    supply = models.CharField("Питание", max_length=6, choices=Supply.choices, blank=True)
+    refrigerant = models.CharField("Хладагент", max_length=5, choices=Refrigerant.choices, blank=True)
     power_kw = models.DecimalField(
         "Тепловая мощность, кВт", max_digits=6, decimal_places=2,
         validators=[MinValueValidator(Decimal("0.01"))],
@@ -190,8 +201,10 @@ class HeatPump(models.Model):
         "COP", max_digits=4, decimal_places=2, null=True, blank=True,
         validators=[MinValueValidator(Decimal("0.01"))],
     )
-    min_outdoor_c = models.SmallIntegerField("Минимальная температура воздуха в режиме отопления, °C")
-    max_water_c = models.PositiveSmallIntegerField("Максимальная температура подачи, °C")
+    min_outdoor_c = models.SmallIntegerField(
+        "Минимальная температура воздуха в режиме отопления, °C", null=True, blank=True,
+    )
+    max_water_c = models.PositiveSmallIntegerField("Максимальная температура подачи, °C", null=True, blank=True)
     price_rub = models.PositiveIntegerField(
         "Цена, ₽", null=True, blank=True, validators=[MinValueValidator(1)],
         help_text="Если оставить пустым, в каталоге будет «Цена по запросу».",
@@ -206,8 +219,12 @@ class HeatPump(models.Model):
 
     class Meta:
         ordering = ("power_kw", "brand", "model_code", "pk")
-        verbose_name = "Тепловой насос"
-        verbose_name_plural = "Каталог тепловых насосов"
+        verbose_name = "Отопительное оборудование"
+        verbose_name_plural = "Каталог отопительного оборудования"
 
     def __str__(self):
         return f"{self.brand} {self.series} {self.model_code}"
+
+    @property
+    def is_heat_pump(self):
+        return self.category == self.Category.HEAT_PUMP

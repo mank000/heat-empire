@@ -2,18 +2,22 @@ from django import forms
 from django.core.paginator import Paginator
 from django.db.models import F, Q
 from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
 from django.views.decorators.http import require_safe
 
-from .models import HeatPump, SiteContacts
+from .models import HeatingProduct, SiteContacts
 
 
 SORT_OPTIONS = {
     "power": ("Сначала менее мощные", ("power_kw",)),
     "-power": ("Сначала более мощные", ("-power_kw",)),
-    "cold": ("Для более низких температур", ("min_outdoor_c",)),
-    "water": ("Сначала с более горячей подачей", ("-max_water_c",)),
+    "cold": ("Для более низких температур", (F("min_outdoor_c").asc(nulls_last=True),)),
+    "water": ("Сначала с более горячей подачей", (F("max_water_c").desc(nulls_last=True),)),
     "price": ("Сначала дешевле", (F("price_rub").asc(nulls_last=True),)),
 }
+
+
+PUMP_FILTERS = ("construction", "refrigerant", "outdoor")
 
 
 class CatalogFilters(forms.Form):
@@ -23,14 +27,14 @@ class CatalogFilters(forms.Form):
     )
     brand = forms.MultipleChoiceField(label="Бренд", required=False, widget=forms.CheckboxSelectMultiple)
     construction = forms.MultipleChoiceField(
-        label="Конструкция", choices=HeatPump.Construction.choices,
+        label="Конструкция", choices=HeatingProduct.Construction.choices,
         required=False, widget=forms.CheckboxSelectMultiple,
     )
     min_power = forms.DecimalField(label="Мощность от, кВт", required=False, min_value=0, max_digits=6, decimal_places=2)
     max_power = forms.DecimalField(label="Мощность до, кВт", required=False, min_value=0, max_digits=6, decimal_places=2)
-    supply = forms.ChoiceField(label="Питание", choices=[("", "Любое"), *HeatPump.Supply.choices], required=False)
+    supply = forms.ChoiceField(label="Питание", choices=[("", "Любое"), *HeatingProduct.Supply.choices], required=False)
     refrigerant = forms.ChoiceField(
-        label="Хладагент", choices=[("", "Любой"), *HeatPump.Refrigerant.choices], required=False,
+        label="Хладагент", choices=[("", "Любой"), *HeatingProduct.Refrigerant.choices], required=False,
     )
     outdoor = forms.IntegerField(
         label="Температура воздуха, °C", required=False, min_value=-80, max_value=50,
@@ -45,12 +49,16 @@ class CatalogFilters(forms.Form):
     max_price = forms.IntegerField(label="Цена до, ₽", required=False, min_value=1, max_value=1_000_000_000)
     sort = forms.ChoiceField(label="Сортировка", required=False)
 
-    def __init__(self, *args, brands, has_prices, **kwargs):
+    def __init__(self, *args, brands, has_prices, show_pump_filters, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields["brand"].choices = [(brand, brand) for brand in brands]
         self.fields["sort"].choices = [
-            (key, label) for key, (label, _) in SORT_OPTIONS.items() if key != "price" or has_prices
+            (key, label) for key, (label, _) in SORT_OPTIONS.items()
+            if (key != "price" or has_prices) and (key != "cold" or show_pump_filters)
         ]
+        if not show_pump_filters:
+            for field in PUMP_FILTERS:
+                del self.fields[field]
         if not has_prices:
             del self.fields["min_price"]
             del self.fields["max_price"]
@@ -67,39 +75,85 @@ class CatalogFilters(forms.Form):
 
 @require_safe
 def catalog_index(request):
-    available = HeatPump.objects.filter(published=True)
+    available = HeatingProduct.objects.filter(published=True)
+    category = request.GET.get("category", "")
+    if category not in HeatingProduct.Category.values:
+        category = ""
+    if category:
+        available = available.filter(category=category)
+    show_pump_filters = not category or category == HeatingProduct.Category.HEAT_PUMP
     brands = available.order_by("brand").values_list("brand", flat=True).distinct()
     has_prices = available.filter(price_rub__isnull=False).exists()
-    form = CatalogFilters(request.GET, brands=brands, has_prices=has_prices)
+    params = request.GET.copy()
+    params.pop("page", None)
+    if not show_pump_filters:
+        for field in PUMP_FILTERS:
+            params.pop(field, None)
+        if params.get("sort") == "cold":
+            params.pop("sort")
+    if not has_prices:
+        params.pop("min_price", None)
+        params.pop("max_price", None)
+        if params.get("sort") == "price":
+            params.pop("sort")
+    form = CatalogFilters(params, brands=brands, has_prices=has_prices, show_pump_filters=show_pump_filters)
     products = available.none()
     if form.is_valid():
         filters = form.cleaned_data
         products = available
         for word in filters["q"].split():
-            products = products.filter(
-                Q(brand__icontains=word) | Q(series__icontains=word) | Q(model_code__icontains=word)
-            )
+            # SQLite's case-insensitive matching only folds ASCII.
+            matches = Q()
+            for spelling in {word, word.lower(), word.upper(), word.title()}:
+                matches |= Q(brand__icontains=spelling) | Q(series__icontains=spelling) | Q(model_code__icontains=spelling)
+            products = products.filter(matches)
         for field, lookup in (
             ("brand", "brand__in"), ("construction", "construction__in"),
             ("min_power", "power_kw__gte"), ("max_power", "power_kw__lte"),
-            ("supply", "supply"), ("refrigerant", "refrigerant"),
+            ("refrigerant", "refrigerant"),
             ("outdoor", "min_outdoor_c__lte"), ("water", "max_water_c__gte"),
             ("min_price", "price_rub__gte"), ("max_price", "price_rub__lte"),
         ):
             value = filters.get(field)
             if value is not None and value != "" and value != []:
                 products = products.filter(**{lookup: value})
+        supply = filters["supply"]
+        if supply:
+            compatible = [supply]
+            if supply in (HeatingProduct.Supply.SINGLE, HeatingProduct.Supply.THREE):
+                compatible.append(HeatingProduct.Supply.EITHER)
+            products = products.filter(supply__in=compatible)
         _, ordering = SORT_OPTIONS[filters["sort"] or "power"]
         products = products.order_by(*ordering, "brand", "model_code", "pk")
 
     page = Paginator(products, 9).get_page(request.GET.get("page"))
-    params = request.GET.copy()
-    params.pop("page", None)
+    catalog_url = reverse("catalog")
+    categories = []
+    for value, label in [("", "Всё оборудование"), *HeatingProduct.Category.choices]:
+        target = params.copy()
+        if value != category:
+            target.pop("brand", None)
+        if value and value != HeatingProduct.Category.HEAT_PUMP:
+            for field in PUMP_FILTERS:
+                target.pop(field, None)
+            if target.get("sort") == "cold":
+                target.pop("sort")
+        if value:
+            target["category"] = value
+        else:
+            target.pop("category", None)
+        query = target.urlencode()
+        categories.append((value, label, f"{catalog_url}?{query}" if query else catalog_url))
+
     return render(request, "catalog/index.html", {
         "contacts": SiteContacts.objects.get(pk=1),
         "catalog_active": True,
         "filters": form,
         "has_prices": has_prices,
+        "category": category,
+        "categories": categories,
+        "show_pump_filters": show_pump_filters,
+        "reset_url": f"{catalog_url}?category={category}" if category else catalog_url,
         "page_obj": page,
         "page_numbers": page.paginator.get_elided_page_range(page.number),
         "page_params": params.urlencode(),
@@ -108,9 +162,9 @@ def catalog_index(request):
 
 @require_safe
 def catalog_detail(request, slug):
-    pump = get_object_or_404(HeatPump, slug=slug, published=True)
+    product = get_object_or_404(HeatingProduct, slug=slug, published=True)
     return render(request, "catalog/detail.html", {
         "contacts": SiteContacts.objects.get(pk=1),
         "catalog_active": True,
-        "pump": pump,
+        "product": product,
     })

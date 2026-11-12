@@ -2,7 +2,7 @@ from cryptography.fernet import InvalidToken
 from django import forms
 from django.conf import settings
 
-from .models import HeatPump, QuoteRequest, SiteContacts, TelegramBotSettings, TelegramSubscriber
+from .models import HeatingProduct, QuoteRequest, SiteContacts, TelegramBotSettings, TelegramSubscriber
 from .phones import format_phone
 from .telegram_credentials import PIN_PATTERN, TOKEN_PATTERN, load_credentials
 
@@ -27,7 +27,7 @@ class SiteContactsForm(forms.ModelForm):
 
 class QuoteRequestForm(forms.ModelForm):
     heat_pump = forms.ModelChoiceField(
-        label="Модель из каталога", queryset=HeatPump.objects.filter(published=True),
+        label="Модель из каталога", queryset=HeatingProduct.objects.filter(published=True),
         to_field_name="slug", required=False, widget=forms.HiddenInput,
         error_messages={"invalid_choice": "Эта модель больше недоступна. Обновите страницу и заполните заявку заново."},
     )

@@ -82,8 +82,8 @@ document.addEventListener("input", (event) => {
 });
 
 document.addEventListener("click", (event) => {
-    const reset = event.target.closest("[data-catalog-reset]");
-    if (!reset || event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+    const link = event.target.closest("[data-catalog-update]");
+    if (!link || event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     event.preventDefault();
-    updateCatalog(reset.href);
+    updateCatalog(link.href);
 });

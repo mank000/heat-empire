@@ -5,7 +5,7 @@ from django.utils.text import Truncator
 
 from .forms import SiteContactsForm, TelegramBotSettingsForm
 from .models import (
-    HeatPump,
+    HeatingProduct,
     LegalPage,
     QuoteRequest,
     SiteContacts,
@@ -149,9 +149,9 @@ class TelegramBotSettingsAdmin(admin.ModelAdmin):
             obj.save(update_fields=fields)
 
 
-@admin.register(HeatPump)
-class HeatPumpAdmin(admin.ModelAdmin):
-    list_display = ("brand", "model_code", "construction", "power_kw", "supply", "price_rub", "published")
-    list_filter = ("published", "brand", "construction", "supply", "refrigerant")
+@admin.register(HeatingProduct)
+class HeatingProductAdmin(admin.ModelAdmin):
+    list_display = ("brand", "model_code", "category", "power_kw", "supply", "price_rub", "published")
+    list_filter = ("published", "category", "brand", "construction", "supply", "refrigerant")
     search_fields = ("brand", "series", "model_code")
     prepopulated_fields = {"slug": ("brand", "model_code")}

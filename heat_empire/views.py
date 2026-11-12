@@ -9,7 +9,7 @@ from django.views.generic import TemplateView
 
 from .content import HEATING_SYSTEMS, WORK_STAGES
 from .forms import QuoteRequestForm
-from .models import HeatPump, LegalPage, QuoteRequest, SiteContacts
+from .models import HeatingProduct, LegalPage, QuoteRequest, SiteContacts
 from .telegram_queue import enqueue_quote_notice
 
 
@@ -25,7 +25,7 @@ class HomeView(TemplateView):
         if self.request.method == "POST":
             source = self.request.POST.get("source")
             pump_slug = self.request.POST.get(f"{source}-heat_pump", "")
-        pump = HeatPump.objects.filter(slug=pump_slug, published=True).first() if pump_slug else None
+        pump = HeatingProduct.objects.filter(slug=pump_slug, published=True).first() if pump_slug else None
         context["selected_pump"] = pump
         initial = {"heat_pump": pump}
         context.setdefault("quote_form", QuoteRequestForm(prefix=QuoteRequest.Source.SECTION, initial=initial))

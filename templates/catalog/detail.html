@@ -1,36 +1,38 @@
 {% extends "catalog/base.html" %}
 
-{% block title %}{{ pump }} — Империя тепла{% endblock %}
+{% block title %}{{ product }} — Империя тепла{% endblock %}
 
 {% block catalog_content %}
     <div class="container catalog-detail">
         <nav class="catalog-crumbs" aria-label="Хлебные крошки">
             <a href="{% url 'home' %}">Главная</a><span aria-hidden="true">/</span>
             <a href="{% url 'catalog' %}">Каталог</a><span aria-hidden="true">/</span>
-            <span aria-current="page">{{ pump.model_code }}</span>
+            <span aria-current="page">{{ product.model_code }}</span>
         </nav>
         <article class="catalog-detail__grid">
-            {% include "catalog/pump-photo.html" %}
+            {% include "catalog/product-photo.html" %}
             <div class="catalog-detail__content">
-                <p class="catalog-model-kind">{{ pump.get_construction_display }}</p>
-                <h1>{{ pump.brand }} {{ pump.series }}</h1>
-                <p class="catalog-model-code">{{ pump.model_code }}</p>
-                {% if pump.description %}<div class="catalog-detail__description">{{ pump.description|linebreaks }}</div>{% endif %}
+                <p class="catalog-model-kind">{{ product.get_category_display }}</p>
+                <h1>{{ product.brand }} {{ product.series }}</h1>
+                <p class="catalog-model-code">{{ product.model_code }}</p>
+                {% if product.description %}<div class="catalog-detail__description">{{ product.description|linebreaks }}</div>{% endif %}
                 <h2>Характеристики</h2>
                 <dl class="catalog-detail__specs">
-                    <div><dt>Тепловая мощность</dt><dd>{{ pump.power_kw|floatformat:"-2" }} кВт</dd></div>
-                    {% if pump.cop %}<div><dt>COP по паспорту</dt><dd>{{ pump.cop|floatformat:"-2" }}</dd></div>{% endif %}
-                    <div><dt>Питание</dt><dd>{{ pump.get_supply_display }}</dd></div>
-                    <div><dt>Хладагент</dt><dd>{{ pump.get_refrigerant_display }}</dd></div>
-                    <div><dt>Отопление при температуре воздуха</dt><dd>от {{ pump.min_outdoor_c }} °C</dd></div>
-                    <div><dt>Температура подачи</dt><dd>до {{ pump.max_water_c }} °C</dd></div>
+                    <div><dt>Тепловая мощность</dt><dd>{{ product.power_kw|floatformat:"-2" }} кВт</dd></div>
+                    {% if product.cop %}<div><dt>COP по паспорту</dt><dd>{{ product.cop|floatformat:"-2" }}</dd></div>{% endif %}
+                    {% if product.construction %}<div><dt>Конструкция</dt><dd>{{ product.get_construction_display }}</dd></div>{% endif %}
+                    {% if product.fuel %}<div><dt>Топливо</dt><dd>{{ product.fuel }}</dd></div>{% endif %}
+                    {% if product.supply %}<div><dt>Питание</dt><dd>{{ product.get_supply_display }}</dd></div>{% endif %}
+                    {% if product.refrigerant %}<div><dt>Хладагент</dt><dd>{{ product.get_refrigerant_display }}</dd></div>{% endif %}
+                    {% if product.is_heat_pump and product.min_outdoor_c is not None %}<div><dt>Отопление при температуре воздуха</dt><dd>от {{ product.min_outdoor_c }} °C</dd></div>{% endif %}
+                    {% if product.max_water_c %}<div><dt>Температура подачи</dt><dd>до {{ product.max_water_c }} °C</dd></div>{% endif %}
                 </dl>
-                <p class="catalog-detail__note">Показатели приведены по данным производителя. Мощность и COP зависят от температуры воздуха и воды.</p>
-                {% if pump.source_url %}
-                    <p class="catalog-source"><a href="{{ pump.source_url }}" rel="noopener noreferrer" target="_blank">Характеристики производителя <span aria-hidden="true">↗</span></a></p>
+                <p class="catalog-detail__note">Показатели приведены по данным производителя.{% if product.is_heat_pump %} Мощность и COP зависят от температуры воздуха и воды.{% endif %}</p>
+                {% if product.source_url %}
+                    <p class="catalog-source"><a href="{{ product.source_url }}" rel="noopener noreferrer" target="_blank">Характеристики производителя <span aria-hidden="true">↗</span></a></p>
                 {% endif %}
-                <p class="catalog-detail__price">{% if pump.price_rub %}{{ pump.price_rub|floatformat:"0g" }} ₽{% else %}Цена по запросу{% endif %}</p>
-                <a class="button" href="{% url 'home' %}?pump={{ pump.slug|urlencode }}#quote">Запросить расчёт для этой модели</a>
+                <p class="catalog-detail__price">{% if product.price_rub %}{{ product.price_rub|floatformat:"0g" }} ₽{% else %}Цена по запросу{% endif %}</p>
+                <a class="button" href="{% url 'home' %}?pump={{ product.slug|urlencode }}#quote">Запросить расчёт для этой модели</a>
             </div>
         </article>
     </div>
