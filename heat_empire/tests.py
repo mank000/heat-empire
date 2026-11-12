@@ -9,7 +9,7 @@ class SiteContactsTests(TestCase):
     def test_seeded_contacts_are_visible_without_messenger_links(self):
         response = self.client.get(reverse("home"))
 
-        self.assertContains(response, 'href="tel:+79241317130"', count=5)
+        self.assertContains(response, 'href="tel:+79241317130"', count=4)
         self.assertContains(response, "г. Санкт-Петербург, г. Колпино,")
         self.assertNotContains(response, 'aria-label="Telegram"')
 
@@ -27,7 +27,7 @@ class SiteContactsTests(TestCase):
 
         self.assertEqual(SiteContacts.objects.get(pk=1).phone, "+7 (900) 123-45-67")
         response = self.client.get(reverse("home"))
-        self.assertContains(response, 'href="tel:+79001234567"', count=5)
+        self.assertContains(response, 'href="tel:+79001234567"', count=4)
         self.assertContains(response, "<strong>+7 (900) 123-45-67</strong>", count=4, html=True)
         self.assertContains(response, new_contacts["address"])
         for field in ("telegram_url", "whatsapp_url", "max_url"):

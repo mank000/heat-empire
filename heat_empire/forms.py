@@ -2,7 +2,7 @@ from cryptography.fernet import InvalidToken
 from django import forms
 from django.conf import settings
 
-from .models import HeatingProduct, QuoteRequest, SiteContacts, TelegramBotSettings, TelegramSubscriber
+from .models import HeatingProduct, ProductReview, QuoteRequest, SiteContacts, TelegramBotSettings, TelegramSubscriber
 from .phones import format_phone
 from .telegram_credentials import PIN_PATTERN, TOKEN_PATTERN, load_credentials
 
@@ -62,6 +62,18 @@ class QuoteRequestForm(QuoteContactForm):
             ("", "Тип текущего отопления"),
             *QuoteRequest.Heating.choices,
         ]
+
+
+class ProductReviewForm(forms.ModelForm):
+    rating = forms.TypedChoiceField(
+        label="Оценка", coerce=int,
+        choices=[("", "Выберите оценку"), *((value, f"{value} из 5") for value in range(5, 0, -1))],
+    )
+
+    class Meta:
+        model = ProductReview
+        fields = ("author", "rating", "body")
+        widgets = {"body": forms.Textarea(attrs={"rows": 4})}
 
 
 class TelegramBotSettingsForm(forms.ModelForm):

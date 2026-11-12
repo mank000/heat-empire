@@ -1,7 +1,11 @@
 {% load static %}
 <figure class="catalog-photo">
-    {% if product.image_url %}
-        <img src="{{ product.image_url }}" alt="{{ product }}" loading="lazy" referrerpolicy="no-referrer">
+    {% with asset=product.image_asset %}
+    {% if asset %}
+        <img class="catalog-photo__product" src="{% static asset %}" alt="{{ product }}" loading="lazy" decoding="async">
+        {% if product.is_demo %}<figcaption>Иллюстрация</figcaption>{% else %}<figcaption>Фото серии</figcaption>{% endif %}
+    {% elif product.image_url %}
+        <img class="catalog-photo__product" src="{{ product.image_url }}" alt="{{ product }}" loading="lazy" decoding="async" referrerpolicy="no-referrer">
         {% if not product.is_heat_pump %}<figcaption>Фото серии</figcaption>{% endif %}
     {% elif product.is_heat_pump %}
         <img src="{% static 'img/outdoor-unit.webp' %}" alt="" loading="lazy" width="820" height="547">
@@ -9,4 +13,5 @@
     {% else %}
         <div class="catalog-photo__placeholder" aria-hidden="true">{{ product.brand }} {{ product.series }}</div>
     {% endif %}
+    {% endwith %}
 </figure>

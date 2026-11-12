@@ -48,3 +48,18 @@ if (scrollPanels.length && "ResizeObserver" in window) {
         scrollObserver.observe(panel);
     }
 }
+
+const caseCards = document.querySelectorAll("[data-case-stack] .case");
+if (caseCards.length && "ResizeObserver" in window) {
+    const positionCards = () => {
+        for (const [index, card] of caseCards.entries()) {
+            // A tall card starts sticking only once its bottom has entered the viewport.
+            const inset = Math.min(12 + index * 10, window.innerHeight - card.offsetHeight - 12);
+            card.style.setProperty("--case-top", `${inset}px`);
+        }
+    };
+    const cardObserver = new ResizeObserver(positionCards);
+    for (const card of caseCards) cardObserver.observe(card);
+    window.addEventListener("resize", positionCards);
+    positionCards();
+}

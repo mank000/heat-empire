@@ -1,0 +1,23 @@
+<article class="catalog-card">
+    {% include "catalog/product-photo.html" %}
+    <div class="catalog-card__content">
+        <p class="catalog-model-kind">{{ product.get_category_display }}</p>
+        <h3><a href="{% url 'catalog-detail' product.slug %}" title="{{ product.brand }} {{ product.series }}">{{ product.brand }} {{ product.series }}</a></h3>
+        <p class="catalog-model-code" title="{{ product.model_code }}">{{ product.model_code }}</p>
+        {% include "catalog/product-stats.html" %}
+        <dl class="catalog-card__specs">
+            <div><dt>Мощность</dt><dd>{{ product.power_kw|floatformat:"-2" }} кВт</dd></div>
+            {% if product.is_heat_pump %}
+                <div><dt>Отопление</dt><dd>{% if product.min_outdoor_c is not None %}от {{ product.min_outdoor_c }} °C{% else %}—{% endif %}</dd></div>
+            {% else %}
+                <div><dt>Топливо</dt><dd title="{{ product.fuel }}">{{ product.fuel|default:"—" }}</dd></div>
+            {% endif %}
+            <div><dt>Подача</dt><dd>{% if product.max_water_c %}до {{ product.max_water_c }} °C{% else %}—{% endif %}</dd></div>
+        </dl>
+        <div class="catalog-card__bottom">
+            <p class="catalog-price">{% if product.price_rub %}{{ product.price_rub|floatformat:"0g" }} ₽{% else %}Цена по запросу{% endif %}</p>
+            <a class="catalog-card__link" href="{% url 'catalog-detail' product.slug %}" aria-label="Подробнее о модели {{ product }}">Подробнее <span aria-hidden="true">↗</span></a>
+        </div>
+        {% include "catalog/compare-toggle.html" %}
+    </div>
+</article>

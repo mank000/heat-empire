@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.hashers import make_password
+from django.db import transaction
 from django.db.models import Count, Q
 from django.utils.text import Truncator
 
@@ -7,6 +8,7 @@ from .forms import SiteContactsForm, TelegramBotSettingsForm
 from .models import (
     HeatingProduct,
     LegalPage,
+    ProductReview,
     QuoteRequest,
     SiteContacts,
     TelegramBotSettings,
@@ -14,6 +16,7 @@ from .models import (
     TelegramDelivery,
     TelegramSubscriber,
 )
+from .reviews import refresh_product_ratings
 from .telegram_credentials import token_cipher
 from .telegram_queue import enqueue_broadcast
 
@@ -151,7 +154,48 @@ class TelegramBotSettingsAdmin(admin.ModelAdmin):
 
 @admin.register(HeatingProduct)
 class HeatingProductAdmin(admin.ModelAdmin):
-    list_display = ("brand", "model_code", "category", "power_kw", "supply", "price_rub", "published")
-    list_filter = ("published", "category", "brand", "construction", "supply", "refrigerant")
+    list_display = ("brand", "model_code", "category", "power_kw", "price_rub", "order_count", "rating", "published")
+    list_filter = ("published", "is_demo", "category", "brand", "construction", "supply", "refrigerant")
+    readonly_fields = ("rating", "review_count")
     search_fields = ("brand", "series", "model_code")
     prepopulated_fields = {"slug": ("brand", "model_code")}
+
+
+@admin.register(ProductReview)
+class ProductReviewAdmin(admin.ModelAdmin):
+    list_display = ("product", "author", "rating", "published", "created_at")
+    list_filter = ("published", "rating", "created_at")
+    search_fields = ("author", "body", "product__model_code")
+    autocomplete_fields = ("product",)
+    actions = ("publish_reviews", "unpublish_reviews")
+
+    def save_model(self, request, obj, form, change):
+        previous_id = ProductReview.objects.values_list("product_id", flat=True).get(pk=obj.pk) if change else obj.product_id
+        super().save_model(request, obj, form, change)
+        refresh_product_ratings({previous_id, obj.product_id})
+
+    @transaction.atomic
+    def delete_model(self, request, obj):
+        product_id = obj.product_id
+        super().delete_model(request, obj)
+        refresh_product_ratings([product_id])
+
+    @transaction.atomic
+    def delete_queryset(self, request, queryset):
+        products = list(queryset.order_by().values_list("product_id", flat=True).distinct())
+        super().delete_queryset(request, queryset)
+        refresh_product_ratings(products)
+
+    @admin.action(description="Опубликовать выбранные отзывы", permissions=["change"])
+    def publish_reviews(self, request, queryset):
+        self.set_publication(queryset, published=True)
+
+    @admin.action(description="Снять выбранные отзывы с публикации", permissions=["change"])
+    def unpublish_reviews(self, request, queryset):
+        self.set_publication(queryset, published=False)
+
+    @transaction.atomic
+    def set_publication(self, queryset, *, published):
+        products = list(queryset.order_by().values_list("product_id", flat=True).distinct())
+        queryset.update(published=published)
+        refresh_product_ratings(products)

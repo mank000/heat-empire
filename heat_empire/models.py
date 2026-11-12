@@ -1,10 +1,11 @@
 import re
 from decimal import Decimal
 
-from django.core.validators import MinValueValidator, RegexValidator, URLValidator
+from django.core.validators import MaxValueValidator, MinValueValidator, RegexValidator, URLValidator
 from django.db import models
 from django.utils import timezone
 
+from .catalog_images import LOCAL_PRODUCT_IMAGES, SAMPLE_PRODUCT_IMAGES
 from .phones import format_phone
 
 
@@ -217,11 +218,21 @@ class HeatingProduct(models.Model):
         help_text="HTTPS-ссылка на фото конкретной модели. Если оставить пустым, используется иллюстрация.",
     )
     published = models.BooleanField("Опубликован", default=True, db_index=True)
+    is_demo = models.BooleanField("Тестовый товар", default=False)
+    order_count = models.PositiveIntegerField("Выполненные заказы", default=0)
+    review_count = models.PositiveIntegerField("Опубликованные отзывы", default=0, editable=False)
+    rating = models.FloatField("Рейтинг", null=True, blank=True, editable=False)
 
     class Meta:
         ordering = ("power_kw", "brand", "model_code", "pk")
         verbose_name = "Отопительное оборудование"
         verbose_name_plural = "Каталог отопительного оборудования"
+        indexes = [
+            models.Index(fields=["power_kw", "id"], condition=models.Q(published=True), name="catalog_power_idx"),
+            models.Index(fields=["category", "power_kw", "id"], condition=models.Q(published=True), name="catalog_category_power_idx"),
+            models.Index(fields=["-order_count", "id"], condition=models.Q(published=True), name="catalog_orders_idx"),
+            models.Index(fields=["-rating", "-review_count", "id"], condition=models.Q(published=True), name="catalog_rating_idx"),
+        ]
 
     def __str__(self):
         return f"{self.brand} {self.series} {self.model_code}"
@@ -229,3 +240,34 @@ class HeatingProduct(models.Model):
     @property
     def is_heat_pump(self):
         return self.category == self.Category.HEAT_PUMP
+
+    @property
+    def image_asset(self):
+        if self.image_url:
+            return LOCAL_PRODUCT_IMAGES.get(self.image_url)
+        if self.is_demo:
+            return SAMPLE_PRODUCT_IMAGES.get(self.category)
+        return None
+
+
+class ProductReview(models.Model):
+    product = models.ForeignKey(HeatingProduct, on_delete=models.CASCADE, related_name="reviews", verbose_name="Товар")
+    author = models.CharField("Имя или псевдоним", max_length=60)
+    rating = models.PositiveSmallIntegerField("Оценка", validators=[MinValueValidator(1), MaxValueValidator(5)])
+    body = models.CharField("Отзыв", max_length=1000)
+    published = models.BooleanField("Опубликован", default=False)
+    created_at = models.DateTimeField("Дата", auto_now_add=True)
+
+    class Meta:
+        ordering = ("-created_at", "-pk")
+        verbose_name = "Отзыв о товаре"
+        verbose_name_plural = "Отзывы о товарах"
+        indexes = [
+            models.Index(fields=["product", "-created_at", "-id"], condition=models.Q(published=True), name="catalog_review_visible_idx"),
+        ]
+        constraints = [
+            models.CheckConstraint(condition=models.Q(rating__range=(1, 5)), name="catalog_review_rating_range"),
+        ]
+
+    def __str__(self):
+        return f"{self.author} · {self.product}"

@@ -1,0 +1,29 @@
+<section class="catalog-reviews" id="product-reviews" aria-labelledby="product-reviews-title">
+    <h2 id="product-reviews-title">Отзывы ({{ product.review_count }})</h2>
+    {% if review_received %}
+        <p role="status">Спасибо! Отзыв появится после проверки.</p>
+    {% endif %}
+    {% if not preview_mode %}
+        <details class="catalog-review-form"{% if review_form.errors %} open{% endif %}>
+            <summary class="button button--outline">Добавить отзыв</summary>
+            <form method="post" action="{{ quote_action }}#product-reviews">
+                {% csrf_token %}
+                <input type="hidden" name="intent" value="review">
+                <p>Имя или псевдоним будет видно после публикации.</p>
+                {{ review_form.non_field_errors }}
+                {% for field in review_form %}
+                    {% include "catalog/filter-field.html" %}
+                {% endfor %}
+                <button type="submit" class="button">Отправить отзыв</button>
+            </form>
+        </details>
+    {% endif %}
+    {% for review in reviews %}
+        <article class="catalog-review">
+            <header><strong>{{ review.author }}</strong><span>{{ review.rating }} из 5</span></header>
+            <p>{{ review.body|linebreaksbr }}</p>
+        </article>
+    {% empty %}
+        <p>Пока нет опубликованных отзывов.</p>
+    {% endfor %}
+</section>

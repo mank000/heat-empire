@@ -1,9 +1,5 @@
-const mobileFilters = matchMedia("(max-width: 679px)");
 const catalogStatus = document.querySelector("[data-catalog-status]");
-document.querySelector("[data-catalog-submit]").hidden = true;
-if (mobileFilters.matches) {
-    document.querySelector("[data-collapse-mobile]")?.removeAttribute("open");
-}
+for (const submit of document.querySelectorAll("[data-catalog-submit]")) submit.hidden = true;
 
 let pendingRequest;
 let inputTimer;
@@ -26,10 +22,7 @@ async function updateCatalog(url) {
         if (!newLayout) throw new Error("Catalog layout missing");
 
         const activeControl = currentLayout.contains(document.activeElement) ? document.activeElement : null;
-        const currentFilters = currentLayout.querySelector("details");
-        const newFilters = newLayout.querySelector("details");
-        newFilters.open = currentFilters.open || Boolean(newFilters.querySelector(".errorlist"));
-        newLayout.querySelector("[data-catalog-submit]").hidden = true;
+        for (const submit of newLayout.querySelectorAll("[data-catalog-submit]")) submit.hidden = true;
 
         // Keep the same filter focused so keyboard input can continue across updates.
         const newControl = activeControl?.id ? page.getElementById(activeControl.id) : null;
@@ -43,7 +36,7 @@ async function updateCatalog(url) {
         }
         history.replaceState(null, "", url);
         const count = newLayout.querySelector("[data-catalog-count]").textContent;
-        catalogStatus.textContent = newFilters.querySelector(".errorlist")
+        catalogStatus.textContent = newLayout.querySelector("#catalog-filters .errorlist")
             ? "Проверьте параметры фильтра."
             : `Найдено моделей: ${count}`;
     } catch (error) {

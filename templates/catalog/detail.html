@@ -25,6 +25,7 @@
                 <p class="catalog-model-kind">{{ product.get_category_display }}</p>
                 <h1>{{ product.brand }} {{ product.series }}</h1>
                 <p class="catalog-model-code">{{ product.model_code }}</p>
+                {% include "catalog/product-stats.html" %}
                 {% if product.description %}<div class="catalog-detail__description">{{ product.description|linebreaks }}</div>{% endif %}
                 <h2>Характеристики</h2>
                 <dl class="catalog-detail__specs">
@@ -49,6 +50,7 @@
                 {% include "catalog/compare-controls.html" %}
             </div>
         </article>
+        {% include "catalog/product-reviews.html" %}
     </div>
     {% include "includes/quote-dialogs.html" %}
 {% endblock %}

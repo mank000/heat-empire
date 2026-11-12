@@ -1,7 +1,12 @@
+from io import StringIO
+
+from django.contrib.auth import get_user_model
+from django.core.management import call_command
+from django.templatetags.static import static
 from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
-from .models import HeatingProduct, QuoteRequest, TelegramDelivery, TelegramSubscriber
+from .models import HeatingProduct, ProductReview, QuoteRequest, TelegramDelivery, TelegramSubscriber
 
 
 class CatalogTests(TestCase):
@@ -22,7 +27,10 @@ class CatalogTests(TestCase):
         self.assertEqual([product.model_code for product in response.context["page_obj"]], ["AHW-120HEDS1"])
         response = self.client.get(reverse("catalog"), {"outdoor": "-25", "sort": "-power"})
         self.assertEqual(response.context["page_obj"].paginator.count, 12)
-        self.assertContains(response, "outdoor=-25&amp;sort=-power&amp;page=2")
+        self.assertEqual(response.context["page_obj"].paginator.num_pages, 1)
+        response = self.client.get(reverse("catalog"), {"sort": "-power"})
+        self.assertContains(response, "sort=-power&amp;page=2")
+        self.assertEqual(len(response.context["page_obj"]), 12)
 
     def test_invalid_range_is_reported_and_price_filter_uses_entered_prices(self):
         response = self.client.get(reverse("catalog"), {"min_power": "10", "max_power": "5"})
@@ -139,3 +147,90 @@ class CatalogComparisonTests(TestCase):
                 response = self.client.get(reverse("catalog-compare"), {"product": slugs})
                 self.assertEqual(response.status_code, 400)
                 self.assertNotContains(response, "<table", status_code=400)
+
+
+class CatalogScaleTests(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        call_command("seed_catalog_demo", stdout=StringIO())
+
+    def test_all_1020_products_paginate_once_without_duplicates(self):
+        url = reverse("catalog")
+        seen = set()
+        for number in range(1, 86):
+            response = self.client.get(url, {"page": number, "sort": "orders"})
+            page = response.context["page_obj"]
+            items = {product.pk for product in page}
+            self.assertEqual(page.number, number)
+            self.assertEqual(len(items), 12)
+            self.assertTrue(seen.isdisjoint(items))
+            seen.update(items)
+        self.assertEqual(len(seen), 1020)
+
+    def test_indexed_sorting_uses_page_slice_and_stable_ties(self):
+        for sort, fields in (("orders", ("-order_count", "pk")), ("rating", ("-rating", "-review_count", "pk"))):
+            expected = list(HeatingProduct.objects.filter(published=True).order_by(*fields).values_list("pk", flat=True)[12:24])
+            with self.subTest(sort=sort), self.assertNumQueries(5):
+                response = self.client.get(reverse("catalog"), {"page": 2, "sort": sort})
+            self.assertEqual([product.pk for product in response.context["page_obj"]], expected)
+
+    def test_demo_command_is_idempotent_and_removes_only_demo(self):
+        call_command("seed_catalog_demo", stdout=StringIO())
+        self.assertEqual(HeatingProduct.objects.filter(is_demo=True).count(), 1000)
+        self.assertEqual(ProductReview.objects.filter(product__is_demo=True).count(), 2000)
+        call_command("seed_catalog_demo", remove=True, stdout=StringIO())
+        self.assertEqual(HeatingProduct.objects.count(), 20)
+
+    def test_refresh_renames_existing_sample_and_preserves_added_reviews(self):
+        product = HeatingProduct.objects.get(slug="heating-model-0002")
+        HeatingProduct.objects.filter(pk=product.pk).update(slug="demo-catalog-0002", brand="Тестовый бренд 3")
+        existing = ProductReview.objects.filter(product=product).first()
+        ProductReview.objects.filter(pk=existing.pk).update(
+            author="Тестовый отзыв 1", body="Демонстрационный текст для проверки отображения отзывов.",
+        )
+        added = ProductReview.objects.create(product=product, rating=4, author="Покупатель", body="Хорошая модель")
+        call_command("seed_catalog_demo", stdout=StringIO())
+
+        product.refresh_from_db()
+        self.assertEqual(product.slug, "heating-model-0002")
+        self.assertTrue(ProductReview.objects.filter(pk=added.pk, product=product).exists())
+        response = self.client.get(reverse("catalog-detail", args=[product.slug]))
+        self.assertContains(response, "HM-0002")
+        self.assertContains(response, static("img/catalog/zota-balance.webp"))
+        self.assertNotContains(response, "Демо")
+        self.assertNotContains(response, "Тестовый отзыв")
+
+    def test_invalid_low_page_does_not_jump_to_end(self):
+        response = self.client.get(reverse("catalog"), {"page": -3})
+        self.assertEqual(response.context["page_obj"].number, 1)
+
+
+class ProductReviewTests(TestCase):
+    def test_reviews_wait_for_moderation_and_recalculate_ratings(self):
+        product = HeatingProduct.objects.get(slug="lemax-premium-10")
+        url = reverse("catalog-detail", args=[product.slug])
+        data = {"intent": "review", "author": "Гость", "rating": "5", "body": "Отзыв для проверки"}
+        result = self.client.post(url, data)
+        self.assertRedirects(result, f"{url}#product-reviews", status_code=303)
+        self.assertFalse(QuoteRequest.objects.exists())
+        review = ProductReview.objects.get()
+        self.assertFalse(review.published)
+        self.assertNotContains(self.client.get(url), data["body"])
+        product.refresh_from_db()
+        self.assertIsNone(product.rating)
+
+        self.client.force_login(get_user_model().objects.create_superuser(username="moderator"))
+        admin_url = reverse("admin:heat_empire_productreview_changelist")
+        self.client.post(admin_url, {"action": "publish_reviews", "_selected_action": [review.pk]})
+        product.refresh_from_db()
+        self.assertEqual((product.rating, product.review_count), (5, 1))
+        self.assertContains(self.client.get(url), data["body"])
+
+        self.client.post(admin_url, {"action": "unpublish_reviews", "_selected_action": [review.pk]})
+        product.refresh_from_db()
+        self.assertEqual((product.rating, product.review_count), (None, 0))
+
+    def test_boiler_series_uses_local_webp(self):
+        response = self.client.get(reverse("catalog-detail", args=["lemax-premium-10"]))
+        self.assertContains(response, static("img/catalog/lemax-premium.webp"))
+        self.assertNotContains(response, "premium_10.jpeg")
