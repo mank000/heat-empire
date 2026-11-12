@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="{% static 'css/quote-dialog.css' %}">
     <script src="{% static 'js/quote-dialog.js' %}" defer></script>
     <script src="{% static 'js/phone-format.js' %}" defer></script>
+    <script src="{% static 'js/catalog-compare.js' %}" defer></script>
 {% endblock %}
 
 {% block title %}{{ product }} — Империя тепла{% endblock %}
@@ -41,7 +42,11 @@
                     <p class="catalog-source"><a href="{{ product.source_url }}" rel="noopener noreferrer" target="_blank">Характеристики производителя <span aria-hidden="true">↗</span></a></p>
                 {% endif %}
                 <p class="catalog-detail__price">{% if product.price_rub %}{{ product.price_rub|floatformat:"0g" }} ₽{% else %}Цена по запросу{% endif %}</p>
-                <a class="button" href="?request=1#quote-dialog" data-open-dialog="quote-dialog">Оставить заявку</a>
+                <div class="catalog-detail__actions">
+                    <a class="button" href="?request=1#quote-dialog" data-open-dialog="quote-dialog">Оставить заявку</a>
+                    {% include "catalog/compare-toggle.html" %}
+                </div>
+                {% include "catalog/compare-controls.html" %}
             </div>
         </article>
     </div>

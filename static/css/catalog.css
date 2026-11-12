@@ -448,3 +448,130 @@
     color: #514c56;
     text-align: center;
 }
+
+.catalog-compare-controls {
+    position: sticky;
+    z-index: 2;
+    top: 8px;
+    margin-block: 12px 18px;
+    padding: 12px;
+    border: 1px solid #e8e3eb;
+    border-radius: 3px;
+    background: white;
+}
+
+.catalog-compare-controls form,
+.catalog-compare-selection,
+.catalog-detail__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+    align-items: center;
+}
+
+.catalog-compare-controls form p {
+    flex: 1 1 220px;
+    margin: 0;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.catalog-compare-controls .button,
+.catalog-compare-toggle {
+    min-height: 42px;
+    padding: 8px 12px;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.catalog-compare-controls .button:disabled {
+    opacity: .55;
+    cursor: default;
+}
+
+.catalog-card .catalog-compare-toggle {
+    align-self: flex-start;
+    margin-top: 12px;
+}
+
+.catalog-compare-toggle[data-selected] {
+    border-color: var(--accent-dark);
+    color: var(--accent-dark);
+}
+
+.catalog-compare-selection {
+    max-height: 106px;
+    overflow: auto;
+    margin: 8px 0 0;
+    padding: 0;
+    list-style: none;
+}
+
+.catalog-compare-selection li {
+    display: flex;
+    max-width: 100%;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 4px 4px 8px;
+    border: 1px solid #e8e3eb;
+    border-radius: 3px;
+    overflow-wrap: anywhere;
+    font-size: 13px;
+}
+
+.catalog-compare-selection button {
+    flex: none;
+    min-width: 32px;
+    min-height: 32px;
+    padding: 0;
+    border: 0;
+    background: var(--background);
+    color: var(--ink);
+    font-size: 19px;
+    cursor: pointer;
+}
+
+.catalog-comparison-kind {
+    margin-block: 8px 16px;
+    color: var(--muted);
+}
+
+.catalog-comparison-scroll {
+    overflow-x: auto;
+    margin-block: 16px 24px;
+    border: 1px solid #e8e3eb;
+    background: white;
+}
+
+.catalog-comparison {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    text-align: left;
+}
+
+.catalog-comparison th,
+.catalog-comparison td {
+    min-width: 150px;
+    padding: 14px;
+    border-bottom: 1px solid #efeaf0;
+    vertical-align: top;
+    overflow-wrap: anywhere;
+}
+
+.catalog-comparison th:first-child {
+    position: sticky;
+    left: 0;
+    width: 22%;
+    min-width: 118px;
+    border-right: 1px solid #efeaf0;
+    background: var(--background);
+}
+
+.catalog-comparison .catalog-model-code {
+    display: block;
+}
+
+.catalog-comparison-empty {
+    margin-top: 16px;
+}
