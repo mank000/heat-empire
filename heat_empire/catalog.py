@@ -1,11 +1,17 @@
+from http import HTTPStatus
+
 from django import forms
+from django.conf import settings
 from django.core.paginator import Paginator
 from django.db.models import F, Q
+from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
-from django.views.decorators.http import require_safe
+from django.views.decorators.http import require_http_methods, require_safe
 
-from .models import HeatingProduct, SiteContacts
+from .forms import QuoteContactForm
+from .models import HeatingProduct, QuoteRequest, SiteContacts
+from .quotes import save_quote_request
 
 
 SORT_OPTIONS = {
@@ -160,11 +166,39 @@ def catalog_index(request):
     })
 
 
-@require_safe
+@require_http_methods(["GET", "HEAD", "POST"])
 def catalog_detail(request, slug):
     product = get_object_or_404(HeatingProduct, slug=slug, published=True)
+    detail_url = reverse("catalog-detail", args=[slug])
+    quote_received = False
+    open_quote = request.GET.get("request") == "1"
+    status = HTTPStatus.OK
+
+    if request.method == "POST":
+        if settings.PREVIEW_MODE:
+            return HttpResponseForbidden("В режиме предпросмотра заявки не отправляются.")
+        form = QuoteContactForm(request.POST)
+        if form.is_valid():
+            save_quote_request(form, source=QuoteRequest.Source.CATALOG, product=product)
+            request.session["catalog_quote_received"] = slug
+            return HttpResponseRedirect(detail_url, status=HTTPStatus.SEE_OTHER)
+        open_quote = True
+        status = HTTPStatus.UNPROCESSABLE_ENTITY
+    else:
+        form = QuoteContactForm()
+        quote_received = request.session.get("catalog_quote_received") == slug
+        if quote_received and request.method == "GET":
+            request.session.pop("catalog_quote_received")
+
     return render(request, "catalog/detail.html", {
         "contacts": SiteContacts.objects.get(pk=1),
         "catalog_active": True,
         "product": product,
-    })
+        "modal_form": form,
+        "selected_pump": product,
+        "catalog_quote": True,
+        "quote_action": detail_url,
+        "open_quote": open_quote and not quote_received,
+        "quote_received": quote_received,
+        "preview_mode": settings.PREVIEW_MODE,
+    }, status=status)

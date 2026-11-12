@@ -1,5 +1,5 @@
 {% if not preview_mode %}{% csrf_token %}{% endif %}
-<input type="hidden" name="source" value="{{ form.prefix }}">
+{% if form.prefix %}<input type="hidden" name="source" value="{{ form.prefix }}">{% endif %}
 {{ form.non_field_errors }}
 {{ form.heat_pump }}
 {{ form.heat_pump.errors }}
@@ -25,7 +25,7 @@
     </div>
 </div>
 {{ form.consent.errors }}
-<button class="button" type="submit"{% if preview_mode %} disabled{% endif %}>Рассчитать экономичное отопление</button>
+<button class="button" type="submit"{% if preview_mode %} disabled{% endif %}>{% if catalog_quote %}Отправить заявку{% else %}Рассчитать экономичное отопление{% endif %}</button>
 {% if preview_mode %}
     <p class="quote__preview-note">Демонстрационная версия. Заявки не отправляются.</p>
 {% endif %}

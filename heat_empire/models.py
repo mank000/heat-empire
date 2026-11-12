@@ -59,11 +59,12 @@ class QuoteRequest(models.Model):
     class Source(models.TextChoices):
         SECTION = "section", "Форма на главной"
         MODAL = "modal", "Модальное окно"
+        CATALOG = "catalog", "Карточка товара"
 
     name = models.CharField("Имя", max_length=100)
     phone = models.CharField("Телефон", max_length=40, validators=[phone_validator])
-    area = models.PositiveIntegerField("Площадь, м²", validators=[MinValueValidator(1)])
-    heating = models.CharField("Текущее отопление", max_length=16, choices=Heating.choices)
+    area = models.PositiveIntegerField("Площадь, м²", validators=[MinValueValidator(1)], null=True, blank=True)
+    heating = models.CharField("Текущее отопление", max_length=16, choices=Heating.choices, blank=True)
     source = models.CharField("Источник", max_length=10, choices=Source.choices)
     created_at = models.DateTimeField("Дата заявки", auto_now_add=True)
     is_processed = models.BooleanField("Обработана", default=False)

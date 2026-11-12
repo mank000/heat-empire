@@ -1,11 +1,18 @@
-<dialog class="quote-dialog" id="quote-dialog" aria-labelledby="quote-dialog-title"{% if modal_form.errors %} data-open-on-load{% endif %}>
-    <button class="quote-dialog__close" type="button" data-close-dialog aria-label="Закрыть окно">×</button>
+<dialog class="quote-dialog{% if catalog_quote %} quote-dialog--catalog{% endif %}" id="quote-dialog" aria-labelledby="quote-dialog-title"{% if open_quote %} open data-open-on-load{% elif modal_form.errors %} data-open-on-load{% endif %}>
+    <form method="dialog">
+        <button class="quote-dialog__close" type="submit" aria-label="Закрыть окно">×</button>
+    </form>
     <div class="quote-dialog__scroll">
         <div class="quote-dialog__panel">
             <div class="quote-dialog__content">
-                <h2 id="quote-dialog-title" tabindex="-1">Сделаем персональный расчёт<br> <span>экономичного отопления</span><br> для вашего дома</h2>
-                <p>Оставьте заявку — специалист свяжется с вами и вышлет рекомендации.</p>
-                <form class="quote-dialog__form" action="{% url 'home' %}" method="post" aria-labelledby="quote-dialog-title">
+                {% if catalog_quote %}
+                    <h2 id="quote-dialog-title" tabindex="-1">Заявка на оборудование</h2>
+                    <p>Оставьте контакты, чтобы мы уточнили цену и наличие.</p>
+                {% else %}
+                    <h2 id="quote-dialog-title" tabindex="-1">Сделаем персональный расчёт<br> <span>экономичного отопления</span><br> для вашего дома</h2>
+                    <p>Оставьте заявку — специалист свяжется с вами и вышлет рекомендации.</p>
+                {% endif %}
+                <form class="quote-dialog__form" action="{% if quote_action %}{{ quote_action }}{% else %}{% url 'home' %}{% endif %}" method="post" aria-labelledby="quote-dialog-title">
                     {% include "includes/quote-fields.html" with form=modal_form %}
                 </form>
             </div>
@@ -15,14 +22,20 @@
 </dialog>
 
 {% if quote_received %}
-    <dialog class="quote-dialog quote-dialog--success" id="quote-success" aria-labelledby="quote-success-title" data-open-on-load>
-        <button class="quote-dialog__close" type="button" data-close-dialog aria-label="Закрыть окно">×</button>
+    <dialog class="quote-dialog quote-dialog--success{% if catalog_quote %} quote-dialog--catalog{% endif %}" id="quote-success" aria-labelledby="quote-success-title" data-open-on-load{% if catalog_quote %} open{% endif %}>
+        <form method="dialog">
+            <button class="quote-dialog__close" type="submit" aria-label="Закрыть окно">×</button>
+        </form>
         <div class="quote-dialog__scroll">
             <div class="quote-dialog__panel">
                 <div class="quote-dialog__content">
                     <h2 id="quote-success-title" tabindex="-1">Спасибо за доверие!</h2>
                     <p>Заявка получена. Скоро свяжемся с вами, чтобы обсудить детали и ответить на вопросы.</p>
-                    <a class="button" href="{% url 'home' %}">Вернуться на главную</a>
+                    {% if catalog_quote %}
+                        <form method="dialog"><button class="button" type="submit">Продолжить просмотр</button></form>
+                    {% else %}
+                        <a class="button" href="{% url 'home' %}">Вернуться на главную</a>
+                    {% endif %}
                 </div>
                 <div class="quote-dialog__picture" aria-hidden="true"></div>
             </div>

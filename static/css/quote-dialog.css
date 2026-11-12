@@ -43,7 +43,7 @@
     border-color: var(--accent);
 }
 
-html:has(.quote-dialog[open]) {
+html:has(.quote-dialog:modal) {
     overflow: hidden;
 }
 
@@ -248,4 +248,13 @@ html:has(.quote-dialog[open]) {
         background-size: auto 183%;
         clip-path: polygon(0 0, calc(100% - 32px) 0, 100% 32px, 100% 100%, 0 100%);
     }
+}
+
+.quote-dialog--catalog[open]:not(:modal) {
+    position: static;
+    margin: 0 auto 36px;
+}
+
+.quote-dialog--catalog .quote__selection {
+    overflow-wrap: anywhere;
 }

@@ -1,7 +1,7 @@
-from django.test import TestCase
+from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 
-from .models import HeatingProduct, QuoteRequest
+from .models import HeatingProduct, QuoteRequest, TelegramDelivery, TelegramSubscriber
 
 
 class CatalogTests(TestCase):
@@ -65,19 +65,42 @@ class CatalogTests(TestCase):
         self.assertEqual(result.status_code, 303)
         self.assertEqual(QuoteRequest.objects.get().heat_pump, pump)
 
-    def test_gas_boiler_selection_uses_the_same_quote_form(self):
+    def test_catalog_quote_uses_card_model_and_confirms_on_same_card(self):
         boiler = HeatingProduct.objects.get(slug="lemax-premium-10")
-        response = self.client.get(reverse("catalog-detail", args=[boiler.slug]))
-        self.assertContains(response, "Природный газ")
-        self.assertNotContains(response, "Хладагент")
-        result = self.client.post(reverse("home"), {
-            "source": "section",
-            "section-name": "Тест",
-            "section-phone": "9001234567",
-            "section-area": "120",
-            "section-heating": QuoteRequest.Heating.GAS,
-            "section-consent": "on",
-            "section-heat_pump": boiler.slug,
+        url = reverse("catalog-detail", args=[boiler.slug])
+        subscriber = TelegramSubscriber.objects.create(chat_id=123, pin_fingerprint="verified")
+        self.assertContains(self.client.get(url), 'data-open-dialog="quote-dialog"')
+        self.assertContains(self.client.get(url, {"request": "1"}), "open data-open-on-load")
+        result = self.client.post(url, {
+            "name": "Тест",
+            "phone": "9001234567",
+            "consent": "on",
+            "heat_pump": "aux-h06-r32",
         })
-        self.assertEqual(result.status_code, 303)
-        self.assertEqual(QuoteRequest.objects.get().heat_pump, boiler)
+        self.assertRedirects(result, url, status_code=303, fetch_redirect_response=False)
+        quote = QuoteRequest.objects.get()
+        self.assertEqual(quote.heat_pump, boiler)
+        self.assertEqual(quote.phone, "+7 (900) 123-45-67")
+        self.assertEqual(quote.source, QuoteRequest.Source.CATALOG)
+        self.assertIsNone(quote.area)
+        self.assertEqual(quote.heating, "")
+        self.assertFalse(quote.is_processed)
+        self.assertEqual(TelegramDelivery.objects.get().subscriber, subscriber)
+        self.assertNotContains(self.client.get(reverse("home")), 'id="quote-success"')
+        self.assertContains(self.client.get(url), "Продолжить просмотр")
+        self.assertNotContains(self.client.get(url), 'id="quote-success"')
+
+    def test_catalog_quote_reopens_for_invalid_data_and_requires_csrf(self):
+        url = reverse("catalog-detail", args=["lemax-premium-10"])
+        result = self.client.post(url, {"name": "Тест", "phone": "invalid"})
+        self.assertContains(result, "open data-open-on-load", status_code=422)
+        self.assertEqual(set(result.context["modal_form"].errors), {"phone", "consent"})
+        self.assertEqual(Client(enforce_csrf_checks=True).post(url).status_code, 403)
+        self.assertFalse(QuoteRequest.objects.exists())
+
+    @override_settings(PREVIEW_MODE=True)
+    def test_catalog_preview_disables_submission(self):
+        url = reverse("catalog-detail", args=["lemax-premium-10"])
+        self.assertContains(self.client.get(url), "Заявки не отправляются.")
+        self.assertEqual(self.client.post(url, {"name": "Тест", "phone": "9001234567", "consent": "on"}).status_code, 403)
+        self.assertFalse(QuoteRequest.objects.exists())

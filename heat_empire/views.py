@@ -1,7 +1,6 @@
 from http import HTTPStatus
 
 from django.conf import settings
-from django.db import transaction
 from django.http import HttpResponseBadRequest, HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
@@ -10,7 +9,7 @@ from django.views.generic import TemplateView
 from .content import HEATING_SYSTEMS, WORK_STAGES
 from .forms import QuoteRequestForm
 from .models import HeatingProduct, LegalPage, QuoteRequest, SiteContacts
-from .telegram_queue import enqueue_quote_notice
+from .quotes import save_quote_request
 
 
 class HomeView(TemplateView):
@@ -41,16 +40,12 @@ class HomeView(TemplateView):
             return HttpResponseForbidden("В режиме предпросмотра заявки не отправляются.")
 
         source = request.POST.get("source")
-        if source not in QuoteRequest.Source.values:
+        if source not in (QuoteRequest.Source.SECTION, QuoteRequest.Source.MODAL):
             return HttpResponseBadRequest("Неизвестная форма заявки.")
 
         form = QuoteRequestForm(request.POST, prefix=source)
         if form.is_valid():
-            quote = form.save(commit=False)
-            quote.source = source
-            with transaction.atomic():
-                quote.save()
-                enqueue_quote_notice(quote)
+            save_quote_request(form, source=source)
             request.session["quote_received"] = True
             return HttpResponseRedirect(reverse("home"), status=HTTPStatus.SEE_OTHER)
 

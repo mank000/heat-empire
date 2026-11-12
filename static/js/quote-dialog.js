@@ -1,6 +1,8 @@
 function showQuoteDialog(dialog) {
     if (typeof dialog?.showModal !== "function") return false;
 
+    if (dialog.matches(":modal")) return true;
+    if (dialog.open) dialog.close();
     dialog.showModal();
     const focusTarget = dialog.querySelector("[aria-invalid='true']") || dialog.querySelector("h2");
     focusTarget.focus();
@@ -17,7 +19,6 @@ for (const trigger of document.querySelectorAll("[data-open-dialog]")) {
 }
 
 for (const dialog of document.querySelectorAll(".quote-dialog")) {
-    dialog.querySelector("[data-close-dialog]").addEventListener("click", () => dialog.close());
     dialog.addEventListener("click", event => {
         if (event.target === dialog) dialog.close();
     });
