@@ -5,6 +5,7 @@ from django.core.validators import MinValueValidator, RegexValidator, URLValidat
 from django.db import models
 from django.utils import timezone
 
+from .catalog_images import LOCAL_PRODUCT_IMAGES
 from .phones import format_phone
 
 
@@ -229,3 +230,7 @@ class HeatingProduct(models.Model):
     @property
     def is_heat_pump(self):
         return self.category == self.Category.HEAT_PUMP
+
+    @property
+    def image_asset(self):
+        return LOCAL_PRODUCT_IMAGES.get(self.image_url)

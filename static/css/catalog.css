@@ -231,7 +231,7 @@
     object-fit: cover;
 }
 
-.catalog-photo img[referrerpolicy] {
+.catalog-photo .catalog-photo__product {
     padding: 12px;
     object-fit: contain;
 }
