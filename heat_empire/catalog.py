@@ -1,3 +1,4 @@
+import re
 from http import HTTPStatus
 
 from django import forms
@@ -164,6 +165,55 @@ def catalog_index(request):
         "page_numbers": page.paginator.get_elided_page_range(page.number),
         "page_params": params.urlencode(),
     })
+
+
+@require_safe
+def catalog_compare(request):
+    slugs = list(dict.fromkeys(request.GET.getlist("product")))
+    products = []
+    error = ""
+    rows = []
+    if not 2 <= len(slugs) <= 3 or any(not re.fullmatch(r"[-a-zA-Z0-9_]{1,100}", slug) for slug in slugs):
+        error = "Выберите от двух до трёх моделей для сравнения."
+    else:
+        published = {
+            product.slug: product
+            for product in HeatingProduct.objects.filter(slug__in=slugs, published=True)
+        }
+        products = [published[slug] for slug in slugs if slug in published]
+        if len(products) != len(slugs):
+            error = "Одна из выбранных моделей больше не доступна. Обновите список в каталоге."
+        elif len({product.category for product in products}) != 1:
+            error = "Для сравнения выберите модели одного типа."
+        else:
+            rows = comparison_rows(products)
+
+    return render(request, "catalog/compare.html", {
+        "contacts": SiteContacts.objects.get(pk=1),
+        "catalog_active": True,
+        "products": products,
+        "rows": rows,
+        "error": error,
+    }, status=HTTPStatus.BAD_REQUEST if error else HTTPStatus.OK)
+
+
+def comparison_rows(products):
+    rows = [
+        ("Тепловая мощность, кВт", [product.power_kw for product in products], True),
+        ("Питание", [product.get_supply_display() for product in products], False),
+        ("Температура подачи до, °C", [product.max_water_c for product in products], False),
+    ]
+    if products[0].is_heat_pump:
+        rows += [
+            ("Конструкция", [product.get_construction_display() for product in products], False),
+            ("Хладагент", [product.get_refrigerant_display() for product in products], False),
+            ("Наружная температура от, °C", [product.min_outdoor_c for product in products], False),
+        ]
+    else:
+        rows.append(("Топливо", [product.fuel for product in products], False))
+    if all(product.price_rub is not None for product in products):
+        rows.append(("Цена, ₽", [product.price_rub for product in products], True))
+    return rows
 
 
 @require_http_methods(["GET", "HEAD", "POST"])

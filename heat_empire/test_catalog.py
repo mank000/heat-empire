@@ -104,3 +104,38 @@ class CatalogTests(TestCase):
         self.assertContains(self.client.get(url), "Заявки не отправляются.")
         self.assertEqual(self.client.post(url, {"name": "Тест", "phone": "9001234567", "consent": "on"}).status_code, 403)
         self.assertFalse(QuoteRequest.objects.exists())
+
+
+class CatalogComparisonTests(TestCase):
+    def test_heat_pump_comparison_preserves_selection_order(self):
+        response = self.client.get(reverse("catalog-compare"), {
+            "product": ["panasonic-wh-wdg07le5", "aux-h06-r32", "hisense-ahw-044hcds1"],
+        })
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            [product.slug for product in response.context["products"]],
+            ["panasonic-wh-wdg07le5", "aux-h06-r32", "hisense-ahw-044hcds1"],
+        )
+        self.assertContains(response, "Хладагент")
+        self.assertNotContains(response, "Цена, ₽")
+
+    def test_boiler_comparison_shows_fuel_and_prices_when_available(self):
+        slugs = ["lemax-premium-10", "lemax-premium-16"]
+        HeatingProduct.objects.filter(slug__in=slugs).update(price_rub=50000)
+        response = self.client.get(reverse("catalog-compare"), {"product": slugs})
+        self.assertContains(response, "Природный газ", count=2)
+        self.assertContains(response, "Цена, ₽")
+        self.assertNotContains(response, "Хладагент")
+
+    def test_rejects_unpublished_models_mixed_types_and_invalid_selection_size(self):
+        HeatingProduct.objects.filter(slug="aux-h08-r32").update(published=False)
+        for slugs in (
+            ["aux-h06-r32", "aux-h08-r32"],
+            ["aux-h06-r32", "lemax-premium-10"],
+            ["aux-h06-r32", "aux-h06-r32"],
+            ["aux-h06-r32", "aux-h04-r32", "aux-h14-r32", "aux-h16-r32"],
+        ):
+            with self.subTest(slugs=slugs):
+                response = self.client.get(reverse("catalog-compare"), {"product": slugs})
+                self.assertEqual(response.status_code, 400)
+                self.assertNotContains(response, "<table", status_code=400)

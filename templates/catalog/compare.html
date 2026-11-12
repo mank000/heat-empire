@@ -1,0 +1,48 @@
+{% extends "catalog/base.html" %}
+
+{% block title %}Сравнение моделей — Империя тепла{% endblock %}
+
+{% block catalog_content %}
+    <div class="container catalog-detail">
+        <nav class="catalog-crumbs" aria-label="Хлебные крошки">
+            <a href="{% url 'home' %}">Главная</a><span aria-hidden="true">/</span>
+            <a href="{% url 'catalog' %}">Каталог</a><span aria-hidden="true">/</span>
+            <span aria-current="page">Сравнение</span>
+        </nav>
+        <h1 id="comparison-title">Сравнение моделей</h1>
+        {% if error %}
+            <div class="catalog-empty catalog-comparison-empty">
+                <p>{{ error }}</p>
+                <a class="button button--outline" href="{% url 'catalog' %}">Вернуться в каталог</a>
+            </div>
+        {% else %}
+            <p class="catalog-comparison-kind">{{ products.0.get_category_display }}</p>
+            <div class="catalog-comparison-scroll" tabindex="0" role="region" aria-labelledby="comparison-title">
+                <table class="catalog-comparison">
+                    <thead>
+                        <tr>
+                            <th scope="col">Характеристика</th>
+                            {% for product in products %}
+                                <th scope="col">
+                                    <a href="{% url 'catalog-detail' product.slug %}">{{ product.brand }} {{ product.series }}</a>
+                                    <span class="catalog-model-code">{{ product.model_code }}</span>
+                                </th>
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for label, values, number in rows %}
+                            <tr>
+                                <th scope="row">{{ label }}</th>
+                                {% for value in values %}
+                                    <td>{% if value is None or value == "" %}Нет данных{% elif number %}{{ value|floatformat:"-2" }}{% else %}{{ value }}{% endif %}</td>
+                                {% endfor %}
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <a class="button button--outline" href="{% url 'catalog' %}">Вернуться в каталог</a>
+        {% endif %}
+    </div>
+{% endblock %}

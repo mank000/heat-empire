@@ -69,6 +69,7 @@
                 <h2 id="catalog-results-title">Модели</h2>
                 <p>Найдено: <strong data-catalog-count>{{ page_obj.paginator.count }}</strong></p>
             </header>
+            {% include "catalog/compare-controls.html" %}
 
             {% if page_obj.object_list %}
                 <div class="catalog-grid">
@@ -92,6 +93,7 @@
                                     <p class="catalog-price">{% if product.price_rub %}{{ product.price_rub|floatformat:"0g" }} ₽{% else %}Цена по запросу{% endif %}</p>
                                     <a class="catalog-card__link" href="{% url 'catalog-detail' product.slug %}" aria-label="Подробнее о модели {{ product }}">Подробнее <span aria-hidden="true">↗</span></a>
                                 </div>
+                                {% include "catalog/compare-toggle.html" %}
                             </div>
                         </article>
                     {% endfor %}
@@ -125,4 +127,5 @@
     </div>
     <p class="catalog-status" role="status" data-catalog-status></p>
     <script src="{% static 'js/catalog.js' %}" defer></script>
+    <script src="{% static 'js/catalog-compare.js' %}" defer></script>
 {% endblock %}

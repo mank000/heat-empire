@@ -36,6 +36,7 @@ async function updateCatalog(url) {
         const selectionStart = activeControl?.selectionStart;
         const selectionEnd = activeControl?.selectionEnd;
         currentLayout.replaceWith(newLayout);
+        document.dispatchEvent(new Event("catalog:updated"));
         newControl?.focus({ preventScroll: true });
         if (selectionStart != null && selectionEnd != null) {
             newControl?.setSelectionRange(selectionStart, selectionEnd);
