@@ -15,10 +15,10 @@
         </div>
     </section>
 
-    <div class="catalog-layout container">
+    <div class="catalog-layout container" data-catalog-layout>
         <details class="catalog-filters" id="catalog-filters" open{% if not filters.errors %} data-collapse-mobile{% endif %}>
             <summary>Фильтры</summary>
-            <form method="get" action="{% url 'catalog' %}#catalog-results-title">
+            <form data-catalog-filters method="get" action="{% url 'catalog' %}#catalog-results-title">
                 {% include "catalog/filter-field.html" with field=filters.q %}
                 <fieldset>
                     <legend>{{ filters.brand.label }}</legend>
@@ -53,15 +53,15 @@
                     </fieldset>
                 {% endif %}
                 {% include "catalog/filter-field.html" with field=filters.sort %}
-                <button class="button" type="submit">Показать модели</button>
-                <a class="catalog-filter-reset" href="{% url 'catalog' %}">Сбросить фильтры</a>
+                <button class="button" type="submit" data-catalog-submit>Показать модели</button>
+                <a class="catalog-filter-reset" data-catalog-reset href="{% url 'catalog' %}">Сбросить фильтры</a>
             </form>
         </details>
 
         <section class="catalog-results" aria-labelledby="catalog-results-title">
             <header class="catalog-results__head">
                 <h2 id="catalog-results-title">Модели</h2>
-                <p>Найдено: <strong>{{ page_obj.paginator.count }}</strong></p>
+                <p>Найдено: <strong data-catalog-count>{{ page_obj.paginator.count }}</strong></p>
             </header>
 
             {% if page_obj.object_list %}
@@ -113,5 +113,6 @@
             {% endif %}
         </section>
     </div>
+    <p class="catalog-status" role="status" data-catalog-status></p>
     <script src="{% static 'js/catalog.js' %}" defer></script>
 {% endblock %}
