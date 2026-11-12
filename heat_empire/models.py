@@ -5,7 +5,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator, RegexVa
 from django.db import models
 from django.utils import timezone
 
-from .catalog_images import LOCAL_PRODUCT_IMAGES
+from .catalog_images import LOCAL_PRODUCT_IMAGES, SAMPLE_PRODUCT_IMAGES
 from .phones import format_phone
 
 
@@ -243,7 +243,11 @@ class HeatingProduct(models.Model):
 
     @property
     def image_asset(self):
-        return LOCAL_PRODUCT_IMAGES.get(self.image_url)
+        if self.image_url:
+            return LOCAL_PRODUCT_IMAGES.get(self.image_url)
+        if self.is_demo:
+            return SAMPLE_PRODUCT_IMAGES.get(self.category)
+        return None
 
 
 class ProductReview(models.Model):

@@ -1,11 +1,33 @@
-from django.core.management.base import BaseCommand
+from django.core.management.base import BaseCommand, CommandError
 from django.db import transaction
+from django.db.models import Q
 
 from heat_empire.models import HeatingProduct, ProductReview
 
 
 DEMO_COUNT = 1000
-DEMO_PREFIX = "demo-catalog-"
+DEMO_PREFIX = "heating-model-"
+LEGACY_PREFIX = "demo-catalog-"
+BRANDS = ("Термоконтур", "СеверТепло", "Аэротерм", "Горизонт", "Тепловектор", "НордЛиния", "Климатон", "ЭкоКонтур")
+SERIES = ("Стандарт", "Комфорт", "Профи", "Оптима")
+REVIEWS = (
+    ("Алексей", "Подошёл по размерам, подключение прошло без проблем."),
+    ("Марина", "Выбирали для загородного дома. Управление оказалось понятным."),
+    ("Игорь", "Характеристики совпали с описанием. Посмотрим, как покажет себя зимой."),
+    ("Елена", "Подобрали нужную мощность. Всё работает, настройки понятные."),
+)
+
+
+def product_content(number):
+    series = SERIES[number % len(SERIES)]
+    if number % 7 == 0:
+        series += " для систем водяного отопления загородных домов"
+    return {
+        "brand": BRANDS[number % len(BRANDS)],
+        "series": series,
+        "model_code": f"HM-{number:04d}",
+        "description": "Оборудование для водяной системы отопления. Подбор мощности зависит от теплопотерь здания.",
+    }
 
 
 class Command(BaseCommand):
@@ -16,7 +38,9 @@ class Command(BaseCommand):
 
     @transaction.atomic
     def handle(self, *args, **options):
-        demo = HeatingProduct.objects.filter(is_demo=True, slug__startswith=DEMO_PREFIX)
+        demo = HeatingProduct.objects.filter(is_demo=True).filter(
+            Q(slug__startswith=DEMO_PREFIX) | Q(slug__startswith=LEGACY_PREFIX)
+        )
         if options["remove"]:
             count = demo.count()
             demo.delete()
@@ -30,25 +54,35 @@ class Command(BaseCommand):
             HeatingProduct.Category.GAS: "Природный газ",
             HeatingProduct.Category.PELLET: "Пеллеты",
         }
-        existing = set(HeatingProduct.objects.filter(slug__startswith=DEMO_PREFIX).values_list("slug", flat=True))
+        existing = dict(HeatingProduct.objects.filter(slug__startswith=DEMO_PREFIX).values_list("slug", "is_demo"))
+        legacy = {
+            product.slug: product
+            for product in demo.filter(slug__startswith=LEGACY_PREFIX)
+        }
+        updated = []
         products = []
         scores = []
         for number in range(1, DEMO_COUNT + 1):
             slug = f"{DEMO_PREFIX}{number:04d}"
+            previous = legacy.get(f"{LEGACY_PREFIX}{number:04d}")
             if slug in existing:
+                if previous or not existing[slug]:
+                    raise CommandError(f"Адрес {slug} уже занят.")
+                continue
+            content = product_content(number)
+            if previous:
+                previous.slug = slug
+                for field, value in content.items():
+                    setattr(previous, field, value)
+                updated.append(previous)
                 continue
             category = categories[(number - 1) % len(categories)]
             is_pump = category == HeatingProduct.Category.HEAT_PUMP
             ratings = [1 + ((number * 13 + index * 7) % 5) for index in range(number % 5)]
-            series = f"Серия {number % 8 + 1}"
-            if number % 7 == 0:
-                series += " с длинным названием для проверки каталога"
             products.append(HeatingProduct(
                 slug=slug,
                 category=category,
-                brand=f"Тестовый бренд {number % 8 + 1}",
-                series=series,
-                model_code=f"DEMO-{number:04d}",
+                **content,
                 power_kw=4 + (number % 35),
                 fuel=fuels.get(category, ""),
                 supply=HeatingProduct.Supply.SINGLE if number % 2 else HeatingProduct.Supply.THREE,
@@ -60,21 +94,30 @@ class Command(BaseCommand):
                 order_count=(number * 97) % 350,
                 review_count=len(ratings),
                 rating=sum(ratings) / len(ratings) if ratings else None,
-                description="Тестовая карточка. Характеристики, отзывы, цена и количество заказов сгенерированы.",
                 is_demo=True,
             ))
             scores.append(ratings)
+
+        HeatingProduct.objects.bulk_update(updated, ["slug", "brand", "series", "model_code", "description"], batch_size=100)
+        if updated:
+            previous_reviews = ProductReview.objects.filter(
+                product_id__in=[product.pk for product in updated],
+                published=True,
+                body="Демонстрационный текст для проверки отображения отзывов.",
+            )
+            for index, (author, body) in enumerate(REVIEWS, 1):
+                previous_reviews.filter(author=f"Тестовый отзыв {index}").update(author=author, body=body)
 
         HeatingProduct.objects.bulk_create(products, batch_size=100)
         ProductReview.objects.bulk_create([
             ProductReview(
                 product=product,
-                author=f"Тестовый отзыв {index}",
+                author=author,
                 rating=rating,
-                body="Демонстрационный текст для проверки отображения отзывов.",
+                body=body,
                 published=True,
             )
             for product, ratings in zip(products, scores, strict=True)
-            for index, rating in enumerate(ratings, 1)
+            for rating, (author, body) in zip(ratings, REVIEWS)
         ], batch_size=250)
-        self.stdout.write(f"Добавлено: {len(products)}. Всего тестовых товаров: {demo.count()}.")
+        self.stdout.write(f"Добавлено: {len(products)}. Обновлено: {len(updated)}. Всего в выборке: {demo.count()}.")

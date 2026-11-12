@@ -181,6 +181,25 @@ class CatalogScaleTests(TestCase):
         call_command("seed_catalog_demo", remove=True, stdout=StringIO())
         self.assertEqual(HeatingProduct.objects.count(), 20)
 
+    def test_refresh_renames_existing_sample_and_preserves_added_reviews(self):
+        product = HeatingProduct.objects.get(slug="heating-model-0002")
+        HeatingProduct.objects.filter(pk=product.pk).update(slug="demo-catalog-0002", brand="Тестовый бренд 3")
+        existing = ProductReview.objects.filter(product=product).first()
+        ProductReview.objects.filter(pk=existing.pk).update(
+            author="Тестовый отзыв 1", body="Демонстрационный текст для проверки отображения отзывов.",
+        )
+        added = ProductReview.objects.create(product=product, rating=4, author="Покупатель", body="Хорошая модель")
+        call_command("seed_catalog_demo", stdout=StringIO())
+
+        product.refresh_from_db()
+        self.assertEqual(product.slug, "heating-model-0002")
+        self.assertTrue(ProductReview.objects.filter(pk=added.pk, product=product).exists())
+        response = self.client.get(reverse("catalog-detail", args=[product.slug]))
+        self.assertContains(response, "HM-0002")
+        self.assertContains(response, static("img/catalog/zota-balance.webp"))
+        self.assertNotContains(response, "Демо")
+        self.assertNotContains(response, "Тестовый отзыв")
+
     def test_invalid_low_page_does_not_jump_to_end(self):
         response = self.client.get(reverse("catalog"), {"page": -3})
         self.assertEqual(response.context["page_obj"].number, 1)

@@ -22,7 +22,7 @@
         <article class="catalog-detail__grid">
             {% include "catalog/product-photo.html" %}
             <div class="catalog-detail__content">
-                <p class="catalog-model-kind">{% if product.is_demo %}Демо · {% endif %}{{ product.get_category_display }}</p>
+                <p class="catalog-model-kind">{{ product.get_category_display }}</p>
                 <h1>{{ product.brand }} {{ product.series }}</h1>
                 <p class="catalog-model-code">{{ product.model_code }}</p>
                 {% include "catalog/product-stats.html" %}

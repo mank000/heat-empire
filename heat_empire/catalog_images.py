@@ -8,3 +8,11 @@ LOCAL_PRODUCT_IMAGES = {
     LEMAX_PHOTOS + "6e4/rn038hkvv5tse1uwn97e8574xacveglk/premium_10.jpeg": "img/catalog/lemax-premium.webp",
     LEMAX_PHOTOS + "d67/eww7dqfwzw0wojioekqchr13m3uo1rqo/premium_16.jpeg": "img/catalog/lemax-premium.webp",
 }
+
+
+SAMPLE_PRODUCT_IMAGES = {
+    "electric": "img/catalog/zota-balance.webp",
+    "solid": "img/catalog/zota-topol.webp",
+    "gas": "img/catalog/lemax-premium.webp",
+    "pellet": "img/catalog/zota-pellet.webp",
+}
