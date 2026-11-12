@@ -16,24 +16,27 @@
     </section>
 
     <div class="catalog-layout container" data-catalog-layout>
-        <nav class="catalog-categories" aria-label="Тип оборудования">
-            {% for value, label, url in categories %}
-                <a id="catalog-category-{{ value|default:'all' }}" href="{{ url }}" data-catalog-update{% if category == value %} aria-current="true"{% endif %}>{{ label }}</a>
-            {% endfor %}
-        </nav>
+        <details class="catalog-category-picker" id="catalog-category-picker" data-filter-dropdown>
+            <summary>Тип оборудования · {{ category_label }}</summary>
+            <nav class="catalog-categories" aria-label="Тип оборудования">
+                {% for value, label, url in categories %}
+                    <a id="catalog-category-{{ value|default:'all' }}" href="{{ url }}" data-catalog-update{% if category == value %} aria-current="true"{% endif %}>{{ label }}</a>
+                {% endfor %}
+            </nav>
+        </details>
         <details class="catalog-filters" id="catalog-filters" open{% if not filters.errors %} data-collapse-mobile{% endif %}>
             <summary>Фильтры</summary>
             <form data-catalog-filters method="get" action="{% url 'catalog' %}#catalog-results-title">
                 {% if category %}<input type="hidden" name="category" value="{{ category }}">{% endif %}
                 {% include "catalog/filter-field.html" with field=filters.q %}
                 {% include "catalog/filter-dropdown.html" with field=filters.brand %}
-                <fieldset>
-                    <legend>Тепловая мощность, кВт</legend>
+                <details class="catalog-filter-range" id="catalog-dropdown-power" data-filter-dropdown{% if filters.min_power.errors or filters.max_power.errors %} open{% endif %}>
+                    <summary>Тепловая мощность, кВт</summary>
                     <div class="catalog-filter-pair">
                         {% include "catalog/filter-field.html" with field=filters.min_power label="От" %}
                         {% include "catalog/filter-field.html" with field=filters.max_power label="До" %}
                     </div>
-                </fieldset>
+                </details>
                 {% include "catalog/filter-field.html" with field=filters.supply %}
                 {% if show_pump_filters %}
                     <fieldset>
@@ -45,13 +48,13 @@
                 {% endif %}
                 {% include "catalog/filter-field.html" with field=filters.water %}
                 {% if has_prices %}
-                    <fieldset>
-                        <legend>Цена, ₽</legend>
+                    <details class="catalog-filter-range" id="catalog-dropdown-price" data-filter-dropdown{% if filters.min_price.errors or filters.max_price.errors %} open{% endif %}>
+                        <summary>Цена, ₽</summary>
                         <div class="catalog-filter-pair">
                             {% include "catalog/filter-field.html" with field=filters.min_price label="От" %}
                             {% include "catalog/filter-field.html" with field=filters.max_price label="До" %}
                         </div>
-                    </fieldset>
+                    </details>
                 {% endif %}
                 {% include "catalog/filter-field.html" with field=filters.sort %}
                 <button class="button" type="submit" data-catalog-submit>Показать модели</button>

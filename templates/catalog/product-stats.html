@@ -1,0 +1,8 @@
+<p class="catalog-product-stats">
+    {% if product.review_count %}
+        <span aria-label="Рейтинг {{ product.rating|floatformat:1 }} из 5, оценок {{ product.review_count }}"><span aria-hidden="true">★</span> {{ product.rating|floatformat:1 }} ({{ product.review_count }})</span>
+    {% else %}
+        <span>Без оценок</span>
+    {% endif %}
+    <span>Заказов: {{ product.order_count }}</span>
+</p>

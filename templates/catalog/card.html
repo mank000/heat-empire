@@ -1,9 +1,10 @@
 <article class="catalog-card">
     {% include "catalog/product-photo.html" %}
     <div class="catalog-card__content">
-        <p class="catalog-model-kind">{{ product.get_category_display }}</p>
+        <p class="catalog-model-kind">{% if product.is_demo %}Демо · {% endif %}{{ product.get_category_display }}</p>
         <h3><a href="{% url 'catalog-detail' product.slug %}" title="{{ product.brand }} {{ product.series }}">{{ product.brand }} {{ product.series }}</a></h3>
         <p class="catalog-model-code" title="{{ product.model_code }}">{{ product.model_code }}</p>
+        {% include "catalog/product-stats.html" %}
         <dl class="catalog-card__specs">
             <div><dt>Мощность</dt><dd>{{ product.power_kw|floatformat:"-2" }} кВт</dd></div>
             {% if product.is_heat_pump %}

@@ -10,12 +10,14 @@ from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from django.views.decorators.http import require_http_methods, require_safe
 
-from .forms import QuoteContactForm
+from .forms import ProductReviewForm, QuoteContactForm
 from .models import HeatingProduct, QuoteRequest, SiteContacts
 from .quotes import save_quote_request
 
 
 SORT_OPTIONS = {
+    "orders": ("Сначала больше заказов", ("-order_count",)),
+    "rating": ("Сначала выше рейтинг", ("-rating", "-review_count")),
     "power": ("Сначала менее мощные", ("power_kw",)),
     "-power": ("Сначала более мощные", ("-power_kw",)),
     "cold": ("Для более низких температур", (F("min_outdoor_c").asc(nulls_last=True),)),
@@ -61,8 +63,9 @@ class CatalogFilters(forms.Form):
         super().__init__(*args, **kwargs)
         self.fields["brand"].choices = [(brand, brand) for brand in brands]
         self.fields["sort"].choices = [
-            (key, label) for key, (label, _) in SORT_OPTIONS.items()
-            if (key != "price" or has_prices) and (key != "cold" or show_pump_filters)
+            ("", "По мощности, от меньшей"),
+            *((key, label) for key, (label, _) in SORT_OPTIONS.items()
+            if key != "power" and (key != "price" or has_prices) and (key != "cold" or show_pump_filters)),
         ]
         if not show_pump_filters:
             for field in PUMP_FILTERS:
@@ -94,6 +97,8 @@ def catalog_index(request):
     has_prices = available.filter(price_rub__isnull=False).exists()
     params = request.GET.copy()
     params.pop("page", None)
+    if params.get("sort") == "power":
+        params.pop("sort")
     if not show_pump_filters:
         for field in PUMP_FILTERS:
             params.pop(field, None)
@@ -132,7 +137,7 @@ def catalog_index(request):
                 compatible.append(HeatingProduct.Supply.EITHER)
             products = products.filter(supply__in=compatible)
         _, ordering = SORT_OPTIONS[filters["sort"] or "power"]
-        products = products.order_by(*ordering, "brand", "model_code", "pk")
+        products = products.order_by(*ordering, "pk").defer("description", "source_url")
 
     try:
         page_number = max(1, int(request.GET.get("page", "1")))
@@ -163,6 +168,7 @@ def catalog_index(request):
         "filters": form,
         "has_prices": has_prices,
         "category": category,
+        "category_label": HeatingProduct.Category(category).label if category else "Всё оборудование",
         "categories": categories,
         "show_pump_filters": show_pump_filters,
         "reset_url": f"{catalog_url}?category={category}" if category else catalog_url,
@@ -226,24 +232,39 @@ def catalog_detail(request, slug):
     product = get_object_or_404(HeatingProduct, slug=slug, published=True)
     detail_url = reverse("catalog-detail", args=[slug])
     quote_received = False
+    review_received = False
+    review_form = ProductReviewForm()
+    form = QuoteContactForm()
     open_quote = request.GET.get("request") == "1"
     status = HTTPStatus.OK
 
     if request.method == "POST":
         if settings.PREVIEW_MODE:
             return HttpResponseForbidden("В режиме предпросмотра заявки не отправляются.")
-        form = QuoteContactForm(request.POST)
-        if form.is_valid():
-            save_quote_request(form, source=QuoteRequest.Source.CATALOG, product=product)
-            request.session["catalog_quote_received"] = slug
-            return HttpResponseRedirect(detail_url, status=HTTPStatus.SEE_OTHER)
-        open_quote = True
+        if request.POST.get("intent") == "review":
+            review_form = ProductReviewForm(request.POST)
+            if review_form.is_valid():
+                review = review_form.save(commit=False)
+                review.product = product
+                review.save()
+                request.session["catalog_review_received"] = slug
+                return HttpResponseRedirect(f"{detail_url}#product-reviews", status=HTTPStatus.SEE_OTHER)
+        else:
+            form = QuoteContactForm(request.POST)
+            if form.is_valid():
+                save_quote_request(form, source=QuoteRequest.Source.CATALOG, product=product)
+                request.session["catalog_quote_received"] = slug
+                return HttpResponseRedirect(detail_url, status=HTTPStatus.SEE_OTHER)
+            open_quote = True
         status = HTTPStatus.UNPROCESSABLE_ENTITY
     else:
-        form = QuoteContactForm()
         quote_received = request.session.get("catalog_quote_received") == slug
-        if quote_received and request.method == "GET":
-            request.session.pop("catalog_quote_received")
+        review_received = request.session.get("catalog_review_received") == slug
+        if request.method == "GET":
+            if quote_received:
+                request.session.pop("catalog_quote_received")
+            if review_received:
+                request.session.pop("catalog_review_received")
 
     return render(request, "catalog/detail.html", {
         "contacts": SiteContacts.objects.get(pk=1),
@@ -255,5 +276,8 @@ def catalog_detail(request, slug):
         "quote_action": detail_url,
         "open_quote": open_quote and not quote_received,
         "quote_received": quote_received,
+        "reviews": product.reviews.filter(published=True)[:10],
+        "review_form": review_form,
+        "review_received": review_received,
         "preview_mode": settings.PREVIEW_MODE,
     }, status=status)

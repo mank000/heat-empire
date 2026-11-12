@@ -26,8 +26,8 @@ async function updateCatalog(url) {
         if (!newLayout) throw new Error("Catalog layout missing");
 
         const activeControl = currentLayout.contains(document.activeElement) ? document.activeElement : null;
-        const currentFilters = currentLayout.querySelector("details");
-        const newFilters = newLayout.querySelector("details");
+        const currentFilters = currentLayout.querySelector("#catalog-filters");
+        const newFilters = newLayout.querySelector("#catalog-filters");
         newFilters.open = currentFilters.open || Boolean(newFilters.querySelector(".errorlist"));
         newLayout.querySelector("[data-catalog-submit]").hidden = true;
         for (const dropdown of newLayout.querySelectorAll("[data-filter-dropdown]")) {
