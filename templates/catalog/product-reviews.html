@@ -5,7 +5,7 @@
     {% endif %}
     {% if not preview_mode %}
         <details class="catalog-review-form"{% if review_form.errors %} open{% endif %}>
-            <summary>Добавить отзыв</summary>
+            <summary class="button button--outline">Добавить отзыв</summary>
             <form method="post" action="{{ quote_action }}#product-reviews">
                 {% csrf_token %}
                 <input type="hidden" name="intent" value="review">

@@ -557,7 +557,7 @@ button:not(:disabled), summary, select:not(:disabled) {
     background: #faeff3;
 }
 
-.solution summary {
+.solution h4 {
     width: fit-content;
     max-width: 100%;
     padding: 10px 42px 10px 18px;

@@ -366,7 +366,7 @@
         border: 1px solid #ecd6df;
     }
 
-    .solution summary {
+    .solution h4 {
         max-width: 100%;
     }
 
@@ -449,7 +449,7 @@
         font-size: 27px;
     }
 
-    .solution summary {
+    .solution h4 {
         padding-right: 30px;
     }
 

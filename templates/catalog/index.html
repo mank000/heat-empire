@@ -16,51 +16,53 @@
     </section>
 
     <div class="catalog-layout container" data-catalog-layout>
-        <details class="catalog-category-picker" id="catalog-category-picker" data-filter-dropdown>
-            <summary>Тип оборудования · {{ category_label }}</summary>
-            <nav class="catalog-categories" aria-label="Тип оборудования">
-                {% for value, label, url in categories %}
-                    <a id="catalog-category-{{ value|default:'all' }}" href="{{ url }}" data-catalog-update{% if category == value %} aria-current="true"{% endif %}>{{ label }}</a>
+        <form class="catalog-category-picker catalog-filter-field" data-catalog-filters method="get" action="{% url 'catalog' %}#catalog-results-title">
+            <label for="catalog-category">Тип оборудования</label>
+            <select id="catalog-category" name="category">
+                <option value="">Всё оборудование</option>
+                {% for value, label in categories %}
+                    <option value="{{ value }}"{% if value == category %} selected{% endif %}>{{ label }}</option>
                 {% endfor %}
-            </nav>
-        </details>
-        <details class="catalog-filters" id="catalog-filters" open{% if not filters.errors %} data-collapse-mobile{% endif %}>
-            <summary>Фильтры</summary>
+            </select>
+            {% for name, value in category_params %}
+                <input type="hidden" name="{{ name }}" value="{{ value }}">
+            {% endfor %}
+            <button class="button" type="submit" data-catalog-submit>Показать модели</button>
+        </form>
+        <aside class="catalog-filters" id="catalog-filters" aria-labelledby="catalog-filters-title">
+            <h2 id="catalog-filters-title">Фильтры</h2>
             <form data-catalog-filters method="get" action="{% url 'catalog' %}#catalog-results-title">
                 {% if category %}<input type="hidden" name="category" value="{{ category }}">{% endif %}
                 {% include "catalog/filter-field.html" with field=filters.q %}
-                {% include "catalog/filter-dropdown.html" with field=filters.brand %}
-                <details class="catalog-filter-range" id="catalog-dropdown-power" data-filter-dropdown{% if filters.min_power.errors or filters.max_power.errors %} open{% endif %}>
-                    <summary>Тепловая мощность, кВт</summary>
+                {% include "catalog/filter-options.html" with field=filters.brand %}
+                <fieldset>
+                    <legend>Тепловая мощность, кВт</legend>
                     <div class="catalog-filter-pair">
                         {% include "catalog/filter-field.html" with field=filters.min_power label="От" %}
                         {% include "catalog/filter-field.html" with field=filters.max_power label="До" %}
                     </div>
-                </details>
+                </fieldset>
                 {% include "catalog/filter-field.html" with field=filters.supply %}
                 {% if show_pump_filters %}
-                    <fieldset>
-                        <legend>Параметры теплового насоса</legend>
-                        {% include "catalog/filter-dropdown.html" with field=filters.construction %}
-                        {% include "catalog/filter-field.html" with field=filters.refrigerant %}
-                        {% include "catalog/filter-field.html" with field=filters.outdoor %}
-                    </fieldset>
+                    {% include "catalog/filter-options.html" with field=filters.construction %}
+                    {% include "catalog/filter-field.html" with field=filters.refrigerant %}
+                    {% include "catalog/filter-field.html" with field=filters.outdoor %}
                 {% endif %}
                 {% include "catalog/filter-field.html" with field=filters.water %}
                 {% if has_prices %}
-                    <details class="catalog-filter-range" id="catalog-dropdown-price" data-filter-dropdown{% if filters.min_price.errors or filters.max_price.errors %} open{% endif %}>
-                        <summary>Цена, ₽</summary>
+                    <fieldset>
+                        <legend>Цена, ₽</legend>
                         <div class="catalog-filter-pair">
                             {% include "catalog/filter-field.html" with field=filters.min_price label="От" %}
                             {% include "catalog/filter-field.html" with field=filters.max_price label="До" %}
                         </div>
-                    </details>
+                    </fieldset>
                 {% endif %}
                 {% include "catalog/filter-field.html" with field=filters.sort %}
                 <button class="button" type="submit" data-catalog-submit>Показать модели</button>
                 <a class="catalog-filter-reset" id="catalog-reset" data-catalog-update href="{{ reset_url }}">Сбросить фильтры</a>
             </form>
-        </details>
+        </aside>
 
         <section class="catalog-results" aria-labelledby="catalog-results-title">
             <header class="catalog-results__head">

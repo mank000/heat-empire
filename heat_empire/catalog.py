@@ -145,22 +145,12 @@ def catalog_index(request):
         page_number = 1
     page = Paginator(products, CATALOG_PAGE_SIZE).get_page(page_number)
     catalog_url = reverse("catalog")
-    categories = []
-    for value, label in [("", "Всё оборудование"), *HeatingProduct.Category.choices]:
-        target = params.copy()
-        if value != category:
-            target.pop("brand", None)
-        if value and value != HeatingProduct.Category.HEAT_PUMP:
-            for field in PUMP_FILTERS:
-                target.pop(field, None)
-            if target.get("sort") == "cold":
-                target.pop("sort")
-        if value:
-            target["category"] = value
-        else:
-            target.pop("category", None)
-        query = target.urlencode()
-        categories.append((value, label, f"{catalog_url}?{query}" if query else catalog_url))
+    category_params = [
+        (key, value)
+        for key, values in params.lists()
+        if key in form.fields and key != "brand"
+        for value in values
+    ]
 
     return render(request, "catalog/index.html", {
         "contacts": SiteContacts.objects.get(pk=1),
@@ -168,8 +158,8 @@ def catalog_index(request):
         "filters": form,
         "has_prices": has_prices,
         "category": category,
-        "category_label": HeatingProduct.Category(category).label if category else "Всё оборудование",
-        "categories": categories,
+        "categories": HeatingProduct.Category.choices,
+        "category_params": category_params,
         "show_pump_filters": show_pump_filters,
         "reset_url": f"{catalog_url}?category={category}" if category else catalog_url,
         "page_obj": page,
