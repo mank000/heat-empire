@@ -1,0 +1,5 @@
+<details class="catalog-filter-dropdown" id="catalog-dropdown-{{ field.name }}" data-filter-dropdown{% if field.errors %} open{% endif %}>
+    <summary>{{ field.label }}{% if field.value %} ({{ field.value|length }}){% endif %}</summary>
+    {{ field }}
+    {{ field.errors }}
+</details>

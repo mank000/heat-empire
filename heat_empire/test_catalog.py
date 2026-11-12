@@ -22,7 +22,10 @@ class CatalogTests(TestCase):
         self.assertEqual([product.model_code for product in response.context["page_obj"]], ["AHW-120HEDS1"])
         response = self.client.get(reverse("catalog"), {"outdoor": "-25", "sort": "-power"})
         self.assertEqual(response.context["page_obj"].paginator.count, 12)
-        self.assertContains(response, "outdoor=-25&amp;sort=-power&amp;page=2")
+        self.assertEqual(response.context["page_obj"].paginator.num_pages, 1)
+        response = self.client.get(reverse("catalog"), {"sort": "-power"})
+        self.assertContains(response, "sort=-power&amp;page=2")
+        self.assertEqual(len(response.context["page_obj"]), 12)
 
     def test_invalid_range_is_reported_and_price_filter_uses_entered_prices(self):
         response = self.client.get(reverse("catalog"), {"min_power": "10", "max_power": "5"})

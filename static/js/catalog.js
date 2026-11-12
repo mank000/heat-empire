@@ -30,6 +30,9 @@ async function updateCatalog(url) {
         const newFilters = newLayout.querySelector("details");
         newFilters.open = currentFilters.open || Boolean(newFilters.querySelector(".errorlist"));
         newLayout.querySelector("[data-catalog-submit]").hidden = true;
+        for (const dropdown of newLayout.querySelectorAll("[data-filter-dropdown]")) {
+            dropdown.open ||= Boolean(currentLayout.querySelector(`#${dropdown.id}`)?.open);
+        }
 
         // Keep the same filter focused so keyboard input can continue across updates.
         const newControl = activeControl?.id ? page.getElementById(activeControl.id) : null;

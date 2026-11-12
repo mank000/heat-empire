@@ -24,6 +24,7 @@ SORT_OPTIONS = {
 }
 
 
+CATALOG_PAGE_SIZE = 12
 PUMP_FILTERS = ("construction", "refrigerant", "outdoor")
 
 
@@ -133,7 +134,11 @@ def catalog_index(request):
         _, ordering = SORT_OPTIONS[filters["sort"] or "power"]
         products = products.order_by(*ordering, "brand", "model_code", "pk")
 
-    page = Paginator(products, 9).get_page(request.GET.get("page"))
+    try:
+        page_number = max(1, int(request.GET.get("page", "1")))
+    except ValueError:
+        page_number = 1
+    page = Paginator(products, CATALOG_PAGE_SIZE).get_page(page_number)
     catalog_url = reverse("catalog")
     categories = []
     for value, label in [("", "Всё оборудование"), *HeatingProduct.Category.choices]:
