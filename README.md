@@ -117,6 +117,8 @@ docker compose -p heat-empire -f compose.yaml -f compose.preview.yaml up --build
 
 Для админки по HTTPS на IP установи доверенный сертификат с IP в SAN, выставь `HEAT_PREVIEW_HTTPS=1` и используй `deploy/nginx-preview-https.conf.example` вместо HTTP-конфигурации. IP-виртуальный хост должен быть единственным IPv4 `default_server` на 443, поскольку соединения по IP обычно приходят без SNI. Именованные HTTPS-хосты сохраняют свои правила. HTTP-исключение для ACME должно оставаться доступным при обновлении сертификата. В `deploy/` есть отдельный таймер и скрипт обновления для выделенных каталогов Certbot.
 
+Чтобы принимать заявки на IP по HTTPS, добавь `HEAT_PREVIEW_MODE=0` в серверный `.env` при уже включённом `HEAT_PREVIEW_HTTPS=1` и пересоздай контейнер `web` с действующими файлами Compose. Для HTTP-предпросмотра оставь `HEAT_PREVIEW_MODE=1`.
+
 ## Автоматический деплой
 
 Workflow **Deploy Heat Empire** запускается на GitHub при обновлении `main`. Он собирает Linux-образ, проверяет тесты и миграции, затем передаёт образ по SSH. Для повторного запуска есть **Actions → Deploy Heat Empire → Run workflow**.
