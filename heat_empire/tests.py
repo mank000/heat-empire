@@ -79,7 +79,7 @@ class QuoteRequestTests(TestCase):
 
     def test_both_forms_save_to_admin_and_show_confirmation_once(self):
         home = reverse("home")
-        for source in QuoteRequest.Source.values:
+        for source in (QuoteRequest.Source.SECTION, QuoteRequest.Source.MODAL):
             with self.subTest(source=source):
                 result = self.client.post(home, self.submission(source))
                 self.assertRedirects(result, home, status_code=303, fetch_redirect_response=False)

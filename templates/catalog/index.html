@@ -1,0 +1,128 @@
+{% extends "catalog/base.html" %}
+{% load static %}
+
+{% block title %}Каталог отопительного оборудования — Империя тепла{% endblock %}
+
+{% block catalog_content %}
+    <section class="catalog-hero">
+        <div class="container catalog-hero__inner">
+            <nav class="catalog-crumbs" aria-label="Хлебные крошки">
+                <a href="{% url 'home' %}">Главная</a><span aria-hidden="true">/</span>
+                <span aria-current="page">Каталог</span>
+            </nav>
+            <h1>Каталог<br> <span>отопительного оборудования</span></h1>
+            <p>Тепловые насосы и котлы для водяного отопления.</p>
+        </div>
+    </section>
+
+    <div class="catalog-layout container" data-catalog-layout>
+        <nav class="catalog-categories" aria-label="Тип оборудования">
+            {% for value, label, url in categories %}
+                <a id="catalog-category-{{ value|default:'all' }}" href="{{ url }}" data-catalog-update{% if category == value %} aria-current="true"{% endif %}>{{ label }}</a>
+            {% endfor %}
+        </nav>
+        <details class="catalog-filters" id="catalog-filters" open{% if not filters.errors %} data-collapse-mobile{% endif %}>
+            <summary>Фильтры</summary>
+            <form data-catalog-filters method="get" action="{% url 'catalog' %}#catalog-results-title">
+                {% if category %}<input type="hidden" name="category" value="{{ category }}">{% endif %}
+                {% include "catalog/filter-field.html" with field=filters.q %}
+                <fieldset>
+                    <legend>{{ filters.brand.label }}</legend>
+                    {{ filters.brand }}
+                    {{ filters.brand.errors }}
+                </fieldset>
+                <fieldset>
+                    <legend>Тепловая мощность, кВт</legend>
+                    <div class="catalog-filter-pair">
+                        {% include "catalog/filter-field.html" with field=filters.min_power label="От" %}
+                        {% include "catalog/filter-field.html" with field=filters.max_power label="До" %}
+                    </div>
+                </fieldset>
+                {% include "catalog/filter-field.html" with field=filters.supply %}
+                {% if show_pump_filters %}
+                    <fieldset>
+                        <legend>Параметры теплового насоса</legend>
+                        {{ filters.construction }}
+                        {{ filters.construction.errors }}
+                        {% include "catalog/filter-field.html" with field=filters.refrigerant %}
+                        {% include "catalog/filter-field.html" with field=filters.outdoor %}
+                    </fieldset>
+                {% endif %}
+                {% include "catalog/filter-field.html" with field=filters.water %}
+                {% if has_prices %}
+                    <fieldset>
+                        <legend>Цена, ₽</legend>
+                        <div class="catalog-filter-pair">
+                            {% include "catalog/filter-field.html" with field=filters.min_price label="От" %}
+                            {% include "catalog/filter-field.html" with field=filters.max_price label="До" %}
+                        </div>
+                    </fieldset>
+                {% endif %}
+                {% include "catalog/filter-field.html" with field=filters.sort %}
+                <button class="button" type="submit" data-catalog-submit>Показать модели</button>
+                <a class="catalog-filter-reset" id="catalog-reset" data-catalog-update href="{{ reset_url }}">Сбросить фильтры</a>
+            </form>
+        </details>
+
+        <section class="catalog-results" aria-labelledby="catalog-results-title">
+            <header class="catalog-results__head">
+                <h2 id="catalog-results-title">Модели</h2>
+                <p>Найдено: <strong data-catalog-count>{{ page_obj.paginator.count }}</strong></p>
+            </header>
+
+            {% if page_obj.object_list %}
+                <div class="catalog-grid">
+                    {% for product in page_obj %}
+                        <article class="catalog-card">
+                            {% include "catalog/product-photo.html" %}
+                            <div class="catalog-card__content">
+                                <p class="catalog-model-kind">{{ product.get_category_display }}</p>
+                                <h3><a href="{% url 'catalog-detail' product.slug %}">{{ product.brand }} {{ product.series }}</a></h3>
+                                <p class="catalog-model-code">{{ product.model_code }}</p>
+                                <dl class="catalog-card__specs">
+                                    <div><dt>Мощность</dt><dd>{{ product.power_kw|floatformat:"-2" }} кВт</dd></div>
+                                    {% if product.is_heat_pump %}
+                                        {% if product.min_outdoor_c is not None %}<div><dt>Отопление</dt><dd>от {{ product.min_outdoor_c }} °C</dd></div>{% endif %}
+                                    {% elif product.fuel %}
+                                        <div><dt>Топливо</dt><dd>{{ product.fuel }}</dd></div>
+                                    {% endif %}
+                                    {% if product.max_water_c %}<div><dt>Подача</dt><dd>до {{ product.max_water_c }} °C</dd></div>{% endif %}
+                                </dl>
+                                <div class="catalog-card__bottom">
+                                    <p class="catalog-price">{% if product.price_rub %}{{ product.price_rub|floatformat:"0g" }} ₽{% else %}Цена по запросу{% endif %}</p>
+                                    <a class="catalog-card__link" href="{% url 'catalog-detail' product.slug %}" aria-label="Подробнее о модели {{ product }}">Подробнее <span aria-hidden="true">↗</span></a>
+                                </div>
+                            </div>
+                        </article>
+                    {% endfor %}
+                </div>
+                {% if page_obj.has_other_pages %}
+                    <nav class="catalog-pagination" aria-label="Страницы каталога">
+                        {% for number in page_numbers %}
+                            {% if number == page_obj.number %}
+                                <span class="catalog-pagination__current" aria-current="page">{{ number }}</span>
+                            {% elif number == page_obj.paginator.ELLIPSIS %}
+                                <span>{{ number }}</span>
+                            {% else %}
+                                <a href="?{% if page_params %}{{ page_params }}&amp;{% endif %}page={{ number }}#catalog-results-title" aria-label="Страница {{ number }}">{{ number }}</a>
+                            {% endif %}
+                        {% endfor %}
+                    </nav>
+                {% endif %}
+            {% else %}
+                <div class="catalog-empty">
+                    {% if filters.errors %}
+                        <h3>Проверьте параметры фильтра</h3>
+                        <p><a href="#catalog-filters">Вернитесь к фильтрам</a>, чтобы исправить отмеченные поля.</p>
+                    {% else %}
+                        <h3>Модели не найдены</h3>
+                        <p>Попробуйте убрать часть условий или изменить запрос.</p>
+                    {% endif %}
+                    <a class="button button--outline" href="{{ reset_url }}" data-catalog-update>Сбросить фильтры</a>
+                </div>
+            {% endif %}
+        </section>
+    </div>
+    <p class="catalog-status" role="status" data-catalog-status></p>
+    <script src="{% static 'js/catalog.js' %}" defer></script>
+{% endblock %}

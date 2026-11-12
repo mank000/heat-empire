@@ -4,6 +4,7 @@
         <a href="{% url 'home' %}" aria-label="Империя тепла, главная">
             <img src="{% static 'img/logo.webp' %}" width="114" height="63" alt="Империя тепла">
         </a>
+        <a class="site-header__catalog" href="{% url 'catalog' %}"{% if catalog_active %} aria-current="true"{% endif %}>Каталог</a>
         <div class="contacts">
             {% include "includes/phone.html" with compact=True %}
             {% include "includes/messengers.html" %}

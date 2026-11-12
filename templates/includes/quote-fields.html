@@ -1,9 +1,14 @@
 {% if not preview_mode %}{% csrf_token %}{% endif %}
-<input type="hidden" name="source" value="{{ form.prefix }}">
+{% if form.prefix %}<input type="hidden" name="source" value="{{ form.prefix }}">{% endif %}
 {{ form.non_field_errors }}
+{{ form.heat_pump }}
+{{ form.heat_pump.errors }}
+{% if selected_pump %}
+    <p class="quote__selection">Выбранная модель: {{ selected_pump }}</p>
+{% endif %}
 <div class="quote__fields">
     {% for field in form %}
-        {% if field.name != "consent" %}
+        {% if field.name != "consent" and not field.is_hidden %}
             <div class="quote__field">
                 <label class="visually-hidden" for="{{ field.id_for_label }}">{{ field.label }}</label>
                 {{ field }}
@@ -20,7 +25,7 @@
     </div>
 </div>
 {{ form.consent.errors }}
-<button class="button" type="submit"{% if preview_mode %} disabled{% endif %}>Рассчитать экономичное отопление</button>
+<button class="button" type="submit"{% if preview_mode %} disabled{% endif %}>{% if catalog_quote %}Отправить заявку{% else %}Рассчитать экономичное отопление{% endif %}</button>
 {% if preview_mode %}
     <p class="quote__preview-note">Демонстрационная версия. Заявки не отправляются.</p>
 {% endif %}

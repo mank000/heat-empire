@@ -5,6 +5,7 @@ from django.utils.text import Truncator
 
 from .forms import SiteContactsForm, TelegramBotSettingsForm
 from .models import (
+    HeatingProduct,
     LegalPage,
     QuoteRequest,
     SiteContacts,
@@ -34,10 +35,10 @@ class SiteContactsAdmin(admin.ModelAdmin):
 
 @admin.register(QuoteRequest)
 class QuoteRequestAdmin(admin.ModelAdmin):
-    list_display = ("id", "created_at", "name", "phone", "area", "heating", "source", "is_processed")
+    list_display = ("id", "created_at", "name", "phone", "heat_pump", "area", "heating", "source", "is_processed")
     list_filter = ("is_processed", "source", "heating", "created_at")
     search_fields = ("name", "phone")
-    readonly_fields = ("created_at", "name", "phone", "area", "heating", "source")
+    readonly_fields = ("created_at", "name", "phone", "area", "heating", "source", "heat_pump")
 
     def has_add_permission(self, request):
         return False
@@ -146,3 +147,11 @@ class TelegramBotSettingsAdmin(admin.ModelAdmin):
             fields.append("pin_hash")
         if fields:
             obj.save(update_fields=fields)
+
+
+@admin.register(HeatingProduct)
+class HeatingProductAdmin(admin.ModelAdmin):
+    list_display = ("brand", "model_code", "category", "power_kw", "supply", "price_rub", "published")
+    list_filter = ("published", "category", "brand", "construction", "supply", "refrigerant")
+    search_fields = ("brand", "series", "model_code")
+    prepopulated_fields = {"slug": ("brand", "model_code")}

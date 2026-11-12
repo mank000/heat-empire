@@ -2,7 +2,7 @@ from cryptography.fernet import InvalidToken
 from django import forms
 from django.conf import settings
 
-from .models import QuoteRequest, SiteContacts, TelegramBotSettings, TelegramSubscriber
+from .models import HeatingProduct, QuoteRequest, SiteContacts, TelegramBotSettings, TelegramSubscriber
 from .phones import format_phone
 from .telegram_credentials import PIN_PATTERN, TOKEN_PATTERN, load_credentials
 
@@ -25,7 +25,7 @@ class SiteContactsForm(forms.ModelForm):
         field_classes = {"phone": FormattedPhoneField}
 
 
-class QuoteRequestForm(forms.ModelForm):
+class QuoteContactForm(forms.ModelForm):
     consent = forms.BooleanField(
         label="Согласен на обработку персональных данных для связи по заявке",
         error_messages={"required": "Подтвердите согласие на обработку данных."},
@@ -33,15 +33,31 @@ class QuoteRequestForm(forms.ModelForm):
 
     class Meta:
         model = QuoteRequest
-        fields = ("name", "phone", "area", "heating")
+        fields = ("name", "phone")
         field_classes = {"phone": FormattedPhoneField}
         widgets = {
             "name": forms.TextInput(attrs={"autocomplete": "given-name", "placeholder": "Ваше имя"}),
+        }
+
+
+class QuoteRequestForm(QuoteContactForm):
+    heat_pump = forms.ModelChoiceField(
+        label="Модель из каталога", queryset=HeatingProduct.objects.filter(published=True),
+        to_field_name="slug", required=False, widget=forms.HiddenInput,
+        error_messages={"invalid_choice": "Эта модель больше недоступна. Обновите страницу и заполните заявку заново."},
+    )
+
+    class Meta(QuoteContactForm.Meta):
+        fields = (*QuoteContactForm.Meta.fields, "area", "heating", "heat_pump")
+        widgets = {
+            **QuoteContactForm.Meta.widgets,
             "area": forms.NumberInput(attrs={"placeholder": "Площадь, м²"}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        self.fields["area"].required = True
+        self.fields["heating"].required = True
         self.fields["heating"].choices = [
             ("", "Тип текущего отопления"),
             *QuoteRequest.Heating.choices,

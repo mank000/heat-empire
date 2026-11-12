@@ -1,0 +1,49 @@
+{% extends "catalog/base.html" %}
+
+{% load static %}
+
+{% block extra_css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'css/quote-dialog.css' %}">
+    <script src="{% static 'js/quote-dialog.js' %}" defer></script>
+    <script src="{% static 'js/phone-format.js' %}" defer></script>
+{% endblock %}
+
+{% block title %}{{ product }} — Империя тепла{% endblock %}
+
+{% block catalog_content %}
+    <div class="container catalog-detail">
+        <nav class="catalog-crumbs" aria-label="Хлебные крошки">
+            <a href="{% url 'home' %}">Главная</a><span aria-hidden="true">/</span>
+            <a href="{% url 'catalog' %}">Каталог</a><span aria-hidden="true">/</span>
+            <span aria-current="page">{{ product.model_code }}</span>
+        </nav>
+        <article class="catalog-detail__grid">
+            {% include "catalog/product-photo.html" %}
+            <div class="catalog-detail__content">
+                <p class="catalog-model-kind">{{ product.get_category_display }}</p>
+                <h1>{{ product.brand }} {{ product.series }}</h1>
+                <p class="catalog-model-code">{{ product.model_code }}</p>
+                {% if product.description %}<div class="catalog-detail__description">{{ product.description|linebreaks }}</div>{% endif %}
+                <h2>Характеристики</h2>
+                <dl class="catalog-detail__specs">
+                    <div><dt>Тепловая мощность</dt><dd>{{ product.power_kw|floatformat:"-2" }} кВт</dd></div>
+                    {% if product.cop %}<div><dt>COP по паспорту</dt><dd>{{ product.cop|floatformat:"-2" }}</dd></div>{% endif %}
+                    {% if product.construction %}<div><dt>Конструкция</dt><dd>{{ product.get_construction_display }}</dd></div>{% endif %}
+                    {% if product.fuel %}<div><dt>Топливо</dt><dd>{{ product.fuel }}</dd></div>{% endif %}
+                    {% if product.supply %}<div><dt>Питание</dt><dd>{{ product.get_supply_display }}</dd></div>{% endif %}
+                    {% if product.refrigerant %}<div><dt>Хладагент</dt><dd>{{ product.get_refrigerant_display }}</dd></div>{% endif %}
+                    {% if product.is_heat_pump and product.min_outdoor_c is not None %}<div><dt>Отопление при температуре воздуха</dt><dd>от {{ product.min_outdoor_c }} °C</dd></div>{% endif %}
+                    {% if product.max_water_c %}<div><dt>Температура подачи</dt><dd>до {{ product.max_water_c }} °C</dd></div>{% endif %}
+                </dl>
+                <p class="catalog-detail__note">Показатели приведены по данным производителя.{% if product.is_heat_pump %} Мощность и COP зависят от температуры воздуха и воды.{% endif %}</p>
+                {% if product.source_url %}
+                    <p class="catalog-source"><a href="{{ product.source_url }}" rel="noopener noreferrer" target="_blank">Характеристики производителя <span aria-hidden="true">↗</span></a></p>
+                {% endif %}
+                <p class="catalog-detail__price">{% if product.price_rub %}{{ product.price_rub|floatformat:"0g" }} ₽{% else %}Цена по запросу{% endif %}</p>
+                <a class="button" href="?request=1#quote-dialog" data-open-dialog="quote-dialog">Оставить заявку</a>
+            </div>
+        </article>
+    </div>
+    {% include "includes/quote-dialogs.html" %}
+{% endblock %}

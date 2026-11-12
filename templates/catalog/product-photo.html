@@ -1,0 +1,12 @@
+{% load static %}
+<figure class="catalog-photo">
+    {% if product.image_url %}
+        <img src="{{ product.image_url }}" alt="{{ product }}" loading="lazy" referrerpolicy="no-referrer">
+        {% if not product.is_heat_pump %}<figcaption>Фото серии</figcaption>{% endif %}
+    {% elif product.is_heat_pump %}
+        <img src="{% static 'img/outdoor-unit.webp' %}" alt="" loading="lazy" width="820" height="547">
+        <figcaption>Иллюстрация</figcaption>
+    {% else %}
+        <div class="catalog-photo__placeholder" aria-hidden="true">{{ product.brand }} {{ product.series }}</div>
+    {% endif %}
+</figure>

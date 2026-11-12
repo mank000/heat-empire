@@ -1,4 +1,5 @@
 import re
+from decimal import Decimal
 
 from django.core.validators import MinValueValidator, RegexValidator, URLValidator
 from django.db import models
@@ -58,14 +59,18 @@ class QuoteRequest(models.Model):
     class Source(models.TextChoices):
         SECTION = "section", "Форма на главной"
         MODAL = "modal", "Модальное окно"
+        CATALOG = "catalog", "Карточка товара"
 
     name = models.CharField("Имя", max_length=100)
     phone = models.CharField("Телефон", max_length=40, validators=[phone_validator])
-    area = models.PositiveIntegerField("Площадь, м²", validators=[MinValueValidator(1)])
-    heating = models.CharField("Текущее отопление", max_length=16, choices=Heating.choices)
+    area = models.PositiveIntegerField("Площадь, м²", validators=[MinValueValidator(1)], null=True, blank=True)
+    heating = models.CharField("Текущее отопление", max_length=16, choices=Heating.choices, blank=True)
     source = models.CharField("Источник", max_length=10, choices=Source.choices)
     created_at = models.DateTimeField("Дата заявки", auto_now_add=True)
     is_processed = models.BooleanField("Обработана", default=False)
+    heat_pump = models.ForeignKey(
+        "HeatingProduct", verbose_name="Модель из каталога", on_delete=models.SET_NULL, null=True, blank=True,
+    )
 
     class Meta:
         ordering = ("-created_at", "-pk")
@@ -154,3 +159,73 @@ class TelegramBotSettings(models.Model):
 
     def __str__(self):
         return "Настройки Telegram-бота"
+
+
+class HeatingProduct(models.Model):
+    class Category(models.TextChoices):
+        HEAT_PUMP = "heat-pump", "Тепловой насос"
+        ELECTRIC = "electric", "Электрический котёл"
+        SOLID = "solid", "Твердотопливный котёл"
+        GAS = "gas", "Газовый котёл"
+        PELLET = "pellet", "Пеллетный котёл"
+
+    class Construction(models.TextChoices):
+        MONOBLOCK = "monoblock", "Моноблок"
+        SPLIT = "split", "Сплит"
+        HYDRAULIC = "hydraulic", "Гидравлический сплит"
+
+    class Supply(models.TextChoices):
+        SINGLE = "single", "1 фаза"
+        THREE = "three", "3 фазы"
+        EITHER = "either", "1 или 3 фазы"
+        NONE = "none", "Без электропитания"
+
+    class Refrigerant(models.TextChoices):
+        R32 = "R32", "R32"
+        R290 = "R290", "R290"
+        R410A = "R410A", "R410A"
+
+    brand = models.CharField("Бренд", max_length=60)
+    series = models.CharField("Серия", max_length=100)
+    model_code = models.CharField("Модель", max_length=80)
+    slug = models.SlugField("Адрес карточки", max_length=100, unique=True)
+    category = models.CharField("Тип оборудования", max_length=10, choices=Category.choices, default=Category.HEAT_PUMP)
+    fuel = models.CharField("Топливо", max_length=100, blank=True)
+    construction = models.CharField("Конструкция", max_length=10, choices=Construction.choices, blank=True)
+    supply = models.CharField("Питание", max_length=6, choices=Supply.choices, blank=True)
+    refrigerant = models.CharField("Хладагент", max_length=5, choices=Refrigerant.choices, blank=True)
+    power_kw = models.DecimalField(
+        "Тепловая мощность, кВт", max_digits=6, decimal_places=2,
+        validators=[MinValueValidator(Decimal("0.01"))],
+    )
+    cop = models.DecimalField(
+        "COP", max_digits=4, decimal_places=2, null=True, blank=True,
+        validators=[MinValueValidator(Decimal("0.01"))],
+    )
+    min_outdoor_c = models.SmallIntegerField(
+        "Минимальная температура воздуха в режиме отопления, °C", null=True, blank=True,
+    )
+    max_water_c = models.PositiveSmallIntegerField("Максимальная температура подачи, °C", null=True, blank=True)
+    price_rub = models.PositiveIntegerField(
+        "Цена, ₽", null=True, blank=True, validators=[MinValueValidator(1)],
+        help_text="Если оставить пустым, в каталоге будет «Цена по запросу».",
+    )
+    description = models.TextField("Описание", blank=True)
+    source_url = models.URLField("Характеристики производителя", blank=True, validators=[messenger_url_validator])
+    image_url = models.URLField(
+        "Ссылка на фото", max_length=500, blank=True, validators=[URLValidator(schemes=["https"])],
+        help_text="HTTPS-ссылка на фото конкретной модели. Если оставить пустым, используется иллюстрация.",
+    )
+    published = models.BooleanField("Опубликован", default=True, db_index=True)
+
+    class Meta:
+        ordering = ("power_kw", "brand", "model_code", "pk")
+        verbose_name = "Отопительное оборудование"
+        verbose_name_plural = "Каталог отопительного оборудования"
+
+    def __str__(self):
+        return f"{self.brand} {self.series} {self.model_code}"
+
+    @property
+    def is_heat_pump(self):
+        return self.category == self.Category.HEAT_PUMP
